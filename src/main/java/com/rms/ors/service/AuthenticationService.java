@@ -1,5 +1,6 @@
 package com.rms.ors.service;
 
+import com.rms.ors.domain.Token;
 import com.rms.ors.domain.User;
 import com.rms.ors.dto.LoginReqDTO;
 import com.rms.ors.dto.RegReqDTO;
@@ -7,6 +8,7 @@ import com.rms.ors.dto.AuthResponseDTO;
 import com.rms.ors.exception.InternalServerErrorException;
 import com.rms.ors.exception.InvalidRefreshTokenException;
 import com.rms.ors.exception.UserNotFoundException;
+import com.rms.ors.repository.TokenRepository;
 import com.rms.ors.repository.UserRepository;
 import com.rms.ors.security.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,11 +24,14 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @Service
 public class AuthenticationService {
     private static final Logger log = LoggerFactory.getLogger(AuthenticationService.class);
     private final UserRepository userRepository;
+    private final TokenRepository tokenRepository;
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
@@ -61,6 +66,8 @@ public class AuthenticationService {
                     .orElseThrow(()-> new UsernameNotFoundException("User not found"));
 
             log.info("User {} logged successfully", user.getEmail());
+            // revoke old tokens
+            revokeAllTokenByUser(user);
             return mapUserToDTO(user);
 
         } catch (AuthenticationException ex) {
@@ -74,32 +81,63 @@ public class AuthenticationService {
 
 
     public AuthResponseDTO refreshToken(HttpServletRequest request) {
+        // extract token form authorization header
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             log.warn("Invalid refresh token!");
             throw new InvalidRefreshTokenException("Invalid refresh token");
         }
 
         String refToken = authHeader.substring(7);
+        // extract the username form token
         String userEmail = jwtUtil.extractUsername(refToken);
+        // find user by username
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(()-> new UserNotFoundException("User not found"));
-
-        if (!jwtUtil.isTokenValid(refToken, user)) {
+        // check if token is valid
+        if (!jwtUtil.isRefreshTokenValid(refToken, user)) {
             log.warn("Invalid refresh token!");
             throw new InvalidRefreshTokenException("Invalid refresh token");
         }
+        // revoke old tokens
+        revokeAllTokenByUser(user);
         return mapUserToDTO(user);
     }
 
     
     private AuthResponseDTO mapUserToDTO(User user) {
+        String accessToken = jwtUtil.generateToken(user);
+        String refreshToken = jwtUtil.generateRefreshToken(user);
+        // save new token before return responseDTO
+        saveUserToken(accessToken, refreshToken, user);
+
         return AuthResponseDTO.builder()
-                .accessToken(jwtUtil.generateToken(user))
-                .refreshToken(jwtUtil.generateRefreshToken(user))
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
                 .email(user.getEmail())
                 .role(user.getRole())
                 .build();
+    }
+
+    private void saveUserToken(String accessToken, String refreshToken, User user) {
+        Token token = Token.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .loggedOut(false)
+                .user(user)
+                .build();
+        tokenRepository.save(token);
+    }
+
+    private void revokeAllTokenByUser(User user) {
+        List<Token> tokensByUser = tokenRepository.findAllTokenById(user.getId());
+
+        if(tokensByUser.isEmpty()) {
+            return;
+        }
+        tokensByUser.forEach(t-> t.setLoggedOut(true));
+        tokenRepository.saveAll(tokensByUser);
     }
 
 }

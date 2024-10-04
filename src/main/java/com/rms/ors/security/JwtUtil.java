@@ -1,7 +1,9 @@
 package com.rms.ors.security;
 
+import com.rms.ors.repository.TokenRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -14,10 +16,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-import static com.fasterxml.jackson.databind.type.LogicalType.Map;
-
+@RequiredArgsConstructor
 @Component
 public class JwtUtil {
+    private final TokenRepository tokenRepository;
     private final String secretKey = "aa02b0b42e8c2948f8dcafd2c251ee9cea3aff016f799a06d8669cc78a24405f";
     private final long jwtExpiration = 1000 * 60 * 60 * 24;
     private final long refreshExpiration = 1000 * 60 * 60 * 24 * 7;
@@ -69,13 +71,24 @@ public class JwtUtil {
     }
 
 
-    public boolean isTokenValid(String token, UserDetails userDetails) {
+    public boolean isRefreshTokenValid(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+        boolean isTokenValid = tokenRepository
+                .findByRefreshToken(token).map(t-> !t.isLoggedOut()).orElse(false);
+        return (username.equals(userDetails.getUsername()) && isTokenNonExpired(token) && isTokenValid);
     }
 
-    private boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
+
+    public boolean isAccessTokenValid(String token, UserDetails userDetails) {
+        final String username = extractUsername(token);
+        boolean isTokenValid = tokenRepository
+                .findByAccessToken(token).map(t-> !t.isLoggedOut()).orElse(false);
+        return (username.equals(userDetails.getUsername()) && isTokenNonExpired(token) && isTokenValid);
+    }
+
+
+    private boolean isTokenNonExpired(String token) {
+        return !extractExpiration(token).before(new Date());
     }
 
     private Date extractExpiration(String token) {
