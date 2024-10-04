@@ -92,27 +92,6 @@ public class AuthenticationService {
         return mapUserToDTO(user);
     }
 
-//    public AuthResponseDTO refreshToken(String request) {
-//        String userEmail = jwtUtil.extractUsername(request);
-//
-//        try {
-//            User user = userRepository.findByEmail(userEmail) // get user
-//                    .orElseThrow(() -> new UserNotFoundException("User not found"));
-//
-//            if (jwtUtil.isTokenValid(request, user)) { // check token validity
-//                log.info("Token refresh successful for user: {}", userEmail);
-//                return mapUserToDTO(user);
-//            } else {
-//                //log.warn("Invalid refresh token!");
-//                throw new InvalidRefreshTokenException("Invalid refresh token");
-//            }
-//
-//        } catch (Exception ex) {
-//            log.error("Error refreshing token: {}", ex.getMessage());
-//            throw new InvalidRefreshTokenException("An unexpected error occurred");
-//        }
-//    }
-
     
     private AuthResponseDTO mapUserToDTO(User user) {
         return AuthResponseDTO.builder()
@@ -122,4 +101,5 @@ public class AuthenticationService {
                 .role(user.getRole())
                 .build();
     }
+
 }
