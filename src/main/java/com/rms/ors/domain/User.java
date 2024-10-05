@@ -34,9 +34,9 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user")
     private List<Token> tokenList;
     @OneToMany(mappedBy = "submittedBy", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Beneficiary> submittedList;
+    private List<Application> submittedList;
     @OneToMany(mappedBy = "reviewedBy", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Beneficiary> reviewedList;
+    private List<Application> reviewedList;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

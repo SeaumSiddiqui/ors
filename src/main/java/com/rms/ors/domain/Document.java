@@ -19,5 +19,5 @@ public class Document {
     private String documentURL;
 
     @ManyToOne
-    private Beneficiary beneficiary;
+    private Application application;
 }

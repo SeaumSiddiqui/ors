@@ -34,10 +34,10 @@ public class SecurityConfig {
         return httpSecurity.csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(request-> request
-                        .requestMatchers("/auth/**", "/public/**")
+                        .requestMatchers("/auth/**", "/api/**")
                         .permitAll()
                         .requestMatchers("/users/**").hasAnyAuthority("ADMIN")
-                        // might implement something like this for the Beneficiary
+                        // might implement something like this for the Application
                         //.requestMatchers("/moderator/**").hasAnyAuthority("MODERATOR")
                         //.requestMatchers("/applicant/**").hasAnyAuthority("APPLICANT")
                         .requestMatchers("/self").hasAnyAuthority("ADMIN", "MODERATOR", "APPLICANT")

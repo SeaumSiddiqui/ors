@@ -13,7 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class Beneficiary {
+public class Application {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -26,7 +26,7 @@ public class Beneficiary {
 
     // TODO -> add other information tables
 
-    @OneToMany(mappedBy = "beneficiary")
+    @OneToMany(mappedBy = "application")
     private List<Document> documentList;
 
     @ManyToOne
