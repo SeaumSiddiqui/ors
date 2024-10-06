@@ -21,6 +21,7 @@ public class ApplicationService {
     private final ApplicationRepository applicationRepository;
     private final UserRepository userRepository;
 
+
     public List<Application> getAllApplicationsByUser(User username) {
         return applicationRepository.findBySubmittedBy(username);
     }
@@ -28,7 +29,7 @@ public class ApplicationService {
 
     public Application getApplicationsByIdAndUser(Long applicationId, User username) {
 
-        return applicationRepository.findByIdAndUser(applicationId, username)
+        return applicationRepository.findByIdAndSubmittedBy(applicationId, username)
                 .orElseThrow(()-> new ResourceNotFoundException("No content found for this user"));
     }
 
@@ -73,14 +74,28 @@ public class ApplicationService {
         }
     }
 
+    /* ------------------------- MANAGEMENT & ADMIN Exclusive --------------------------- */
 
-    public List<Application> getAll() {
+    public List<Application> getApplicationsByStatus(String status) {
+        return applicationRepository.findByApplicationStatus(Status.valueOf(status.toUpperCase()));
+    }
+
+
+    public List<Application> getAllApplications() {
         return applicationRepository.findAll();
     }
 
-    // TODO -> make all UserNotFoundException return this error message
+
     public Application getApplicationsById(Long applicationId) {
         return applicationRepository.findById(applicationId)
                 .orElseThrow(()-> new UserNotFoundException("User with Id <%s> not found".formatted(applicationId)));
     }
+
+    public void deleteApplications(Long applicationId) {
+        if (!applicationRepository.existsById(applicationId)) {
+            throw new ResourceNotFoundException("No content found to delete");
+        }
+        applicationRepository.deleteById(applicationId);
+    }
+
 }

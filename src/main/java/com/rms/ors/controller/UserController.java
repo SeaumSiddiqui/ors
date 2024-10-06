@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RequestMapping("/api")
+@RequestMapping("/user")
 @RequiredArgsConstructor
 @RestController
 public class UserController {
@@ -21,13 +21,13 @@ public class UserController {
     private final UserRepository userRepository;
 
     // get all application by user (self)
-    @GetMapping("/applications") // TODO-> verify with postman
+    @GetMapping("/applications")
     public ResponseEntity<List<Application>> getAllApplicationsByUser(@AuthenticationPrincipal UserDetails userDetails){
         return ResponseEntity.ok(applicationService.getAllApplicationsByUser(getUser(userDetails.getUsername())));
     }
 
     // get an application by user (self)
-    @GetMapping("/applications/{applicationId}") // TODO -> verify with postman && change it later to avoid clash with management getApplication
+    @GetMapping("/applications/{applicationId}")
     public ResponseEntity<Application> getApplicationsByIdAndUser(@AuthenticationPrincipal UserDetails userDetails, @PathVariable Long applicationId){
         return ResponseEntity.ok(applicationService.getApplicationsByIdAndUser(applicationId, getUser(userDetails.getUsername())));
     }
@@ -45,7 +45,6 @@ public class UserController {
     }
 
 
-    // TODO -> make all UserNotFoundException return this error message
     private User getUser(String username) {
         return userRepository.findByEmail(username)
                 .orElseThrow(()-> new UserNotFoundException("User <%s> not found".formatted(username)));

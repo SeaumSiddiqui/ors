@@ -1,6 +1,7 @@
 package com.rms.ors.repository;
 
 import com.rms.ors.domain.Application;
+import com.rms.ors.domain.Status;
 import com.rms.ors.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -8,11 +9,14 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ApplicationRepository extends JpaRepository<Application, Long> {
-    // get all application create by a specific user
+    // get all applications by user
     List<Application> findBySubmittedBy(User submittedBy);
 
-    // get an application created by a user
-    Optional<Application> findByIdAndUser(Long applicationId, User user);
+    // get an application by user
+    Optional<Application> findByIdAndSubmittedBy(Long applicationId, User submittedBy);
+
+    // get applications by application status
+    List<Application> findByApplicationStatus(Status applicationStatus);
 
 
 }

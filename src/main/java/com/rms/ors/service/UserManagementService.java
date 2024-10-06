@@ -42,7 +42,7 @@ public class UserManagementService {
         Optional<User> optionalUser = userRepository.findById(userId);
         if (optionalUser.isEmpty()) {
             log.warn("User with Id {} not found", userId);
-            throw new UserNotFoundException("User with Id %d not found".formatted(userId));
+            throw new UserNotFoundException("User with Id <%d> not found".formatted(userId));
         }
         return mapUserToDTO(optionalUser.get());
     }
@@ -53,7 +53,7 @@ public class UserManagementService {
 
         if (existingUser.isEmpty()) {
             log.warn("User with Id {} not found to update", userId);
-            throw new UserNotFoundException("User with Id %d not found to update".formatted(userId));
+            throw new UserNotFoundException("User with Id <%d> not found to update".formatted(userId));
         }
 
         User user = existingUser.get();
@@ -74,9 +74,8 @@ public class UserManagementService {
 
 
     public void deleteUser(Long userId) {
-
-        if (userRepository.existsById(userId)) {
-            throw new UserNotFoundException("User %d not found".formatted(userId));
+        if (!userRepository.existsById(userId)) {
+            throw new UserNotFoundException("User with Id <%d> not found".formatted(userId));
         }
         userRepository.deleteById(userId);
     }
@@ -90,7 +89,7 @@ public class UserManagementService {
         }
 
         log.warn("User {} not found", email);
-        throw new UserNotFoundException("User with Id %s not found".formatted(email));
+        throw new UserNotFoundException("Use <%s> not found".formatted(email));
     }
 
 
