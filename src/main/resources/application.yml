@@ -1,13 +1,13 @@
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/ors
+    url: jdbc:mysql://localhost:3306/orms
     username: root
     password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     hibernate:
-      ddl-auto: update  # Can be 'none', 'update', 'create', 'create-drop'. Use 'update' for development.
+      ddl-auto: create-drop  # Can be 'none', 'update', 'create', 'create-drop'. Use 'update' for development.
     show-sql: true      # Show SQL queries in the console for debugging
     properties:
       hibernate:

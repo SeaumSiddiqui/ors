@@ -12,7 +12,7 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
     List<Application> findBySubmittedBy(User submittedBy);
 
     // get an application created by a user
-    Optional<Application> findByIdAndSubmittedBy(User submittedBy, Long applicationId);
+    Optional<Application> findByIdAndUser(Long applicationId, User user);
 
 
 }
