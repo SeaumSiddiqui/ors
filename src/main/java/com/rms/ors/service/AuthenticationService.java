@@ -137,7 +137,8 @@ public class AuthenticationService {
             return;
         }
         tokensByUser.forEach(t-> t.setLoggedOut(true));
-        tokenRepository.saveAll(tokensByUser);
+        // clean DB by deleting all expired token
+        tokenRepository.deleteAll(tokensByUser);
     }
 
 }

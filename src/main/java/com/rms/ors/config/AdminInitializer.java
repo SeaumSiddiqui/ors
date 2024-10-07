@@ -32,7 +32,7 @@ public class AdminInitializer implements ApplicationListener<ApplicationReadyEve
             userRepository.save(
                 User.builder()
                         .name("Management")
-                        .email("admin@gmail.com")
+                        .email("management@gmail.com")
                         .password(passwordEncoder.encode("adminPassword"))
                         .role(MANAGEMENT).build()
             );
@@ -40,7 +40,7 @@ public class AdminInitializer implements ApplicationListener<ApplicationReadyEve
             userRepository.save(
                 User.builder()
                         .name("User")
-                        .email("admin@gmail.com")
+                        .email("user@gmail.com")
                         .password(passwordEncoder.encode("adminPassword"))
                         .role(USER).build()
             );

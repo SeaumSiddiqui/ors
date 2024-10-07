@@ -21,12 +21,12 @@ public class AuthenticationController {
         return ResponseEntity.ok(authService.register(request));
     }
 
-    @PostMapping("/login")
+    @PostMapping("/auth/login")
     public ResponseEntity<AuthResponseDTO> login(@RequestBody LoginReqDTO request){
         return ResponseEntity.ok(authService.login(request));
     }
 
-    @PostMapping("/self/refresh")
+    @PostMapping("/auth/refresh")
     public ResponseEntity<AuthResponseDTO> refreshToken(HttpServletRequest request) {
         return ResponseEntity.ok(authService.refreshToken(request));
     }

@@ -5,7 +5,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -13,12 +19,14 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 public class Application {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Enumerated(EnumType.STRING)
     private Status applicationStatus;
+    private String rejectionMessage;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "personal_info_id")
@@ -29,13 +37,21 @@ public class Application {
     @OneToMany(mappedBy = "application")
     private List<Document> documentList;
 
-    @ManyToOne
-    @JoinColumn(name = "submitted_by")
-    private User submittedBy;
-    @ManyToOne
-    @JoinColumn(name = "reviewed_by")
-    private User reviewedBy;
 
-    private String rejectionMessage;
-    // TODO -> add creation and last-update stamp
+    @CreatedBy
+    @Column(nullable = false, updatable = false)
+    private Long submittedBy;
+
+    @LastModifiedBy
+    @Column(insertable = false)
+    private Long LastReviewedBy;
+
+
+    @CreatedDate
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @LastModifiedDate
+    @Column(insertable = false)
+    private LocalDateTime lastModifiedAt;
 }

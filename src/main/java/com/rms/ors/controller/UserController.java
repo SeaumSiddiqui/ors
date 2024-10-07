@@ -1,7 +1,6 @@
 package com.rms.ors.controller;
 
 import com.rms.ors.domain.Application;
-import com.rms.ors.domain.User;
 import com.rms.ors.exception.UserNotFoundException;
 import com.rms.ors.repository.UserRepository;
 import com.rms.ors.service.ApplicationService;
@@ -23,13 +22,13 @@ public class UserController {
     // get all application by user (self)
     @GetMapping("/applications")
     public ResponseEntity<List<Application>> getAllApplicationsByUser(@AuthenticationPrincipal UserDetails userDetails){
-        return ResponseEntity.ok(applicationService.getAllApplicationsByUser(getUser(userDetails.getUsername())));
+        return ResponseEntity.ok(applicationService.getAllApplicationsByUser(getUserId(userDetails.getUsername())));
     }
 
     // get an application by user (self)
     @GetMapping("/applications/{applicationId}")
     public ResponseEntity<Application> getApplicationsByIdAndUser(@AuthenticationPrincipal UserDetails userDetails, @PathVariable Long applicationId){
-        return ResponseEntity.ok(applicationService.getApplicationsByIdAndUser(applicationId, getUser(userDetails.getUsername())));
+        return ResponseEntity.ok(applicationService.getApplicationsByIdAndUser(applicationId, getUserId(userDetails.getUsername())));
     }
 
     // create an application
@@ -45,8 +44,8 @@ public class UserController {
     }
 
 
-    private User getUser(String username) {
+    private Long getUserId(String username) {
         return userRepository.findByEmail(username)
-                .orElseThrow(()-> new UserNotFoundException("User <%s> not found".formatted(username)));
+                .orElseThrow(()-> new UserNotFoundException("User <%s> not found".formatted(username))).getId();
     }
 }

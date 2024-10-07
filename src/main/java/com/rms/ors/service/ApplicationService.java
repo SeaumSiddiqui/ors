@@ -22,14 +22,14 @@ public class ApplicationService {
     private final UserRepository userRepository;
 
 
-    public List<Application> getAllApplicationsByUser(User username) {
-        return applicationRepository.findBySubmittedBy(username);
+    public List<Application> getAllApplicationsByUser(Long userId) {
+        return applicationRepository.findBySubmittedBy(userId);
     }
 
 
-    public Application getApplicationsByIdAndUser(Long applicationId, User username) {
+    public Application getApplicationsByIdAndUser(Long applicationId, Long userId) {
 
-        return applicationRepository.findByIdAndSubmittedBy(applicationId, username)
+        return applicationRepository.findByIdAndSubmittedBy(applicationId, userId)
                 .orElseThrow(()-> new ResourceNotFoundException("No content found for this user"));
     }
 

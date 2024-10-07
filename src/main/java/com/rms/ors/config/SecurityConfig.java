@@ -6,6 +6,7 @@ import com.rms.ors.service.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -37,7 +38,7 @@ public class SecurityConfig {
         return httpSecurity.csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(request-> request
-                        .requestMatchers("/login")
+                        .requestMatchers("/auth/**")
                         .permitAll()
                         .requestMatchers("/users/**", "/admin/**").hasAnyRole(ADMIN.name())
                         
@@ -60,7 +61,7 @@ public class SecurityConfig {
                         .requestMatchers("GET", "/user/**").hasAnyAuthority(USER_READ.name())
                         .requestMatchers("PUT", "/user/**").hasAnyAuthority(USER_READ.name())
 
-                        .requestMatchers("/self/**").hasAnyRole(ADMIN.name(), MANAGEMENT.name(), USER.name())
+                        .requestMatchers("/self").hasAnyRole(ADMIN.name(), MANAGEMENT.name(), USER.name())
                         .anyRequest()
                         .authenticated())
                 .sessionManagement(manager->manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -89,6 +90,11 @@ public class SecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception{
         return authenticationConfiguration.getAuthenticationManager();
+    }
+
+    @Bean
+    public AuditorAware<Long> applicationAuditAware() {
+        return new ApplicationAuditAware();
     }
 
 }

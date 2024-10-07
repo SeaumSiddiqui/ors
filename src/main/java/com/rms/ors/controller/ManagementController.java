@@ -1,8 +1,6 @@
 package com.rms.ors.controller;
 
 import com.rms.ors.domain.Application;
-import com.rms.ors.domain.User;
-import com.rms.ors.exception.UserNotFoundException;
 import com.rms.ors.repository.UserRepository;
 import com.rms.ors.service.ApplicationService;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +14,6 @@ import java.util.List;
 @RestController
 public class ManagementController {
     private final ApplicationService applicationService;
-    private final UserRepository userRepository;
 
     @GetMapping("/applications/status/{status}")
     public ResponseEntity<List<Application>> getApplicationsByStatus(@PathVariable String status) {
@@ -38,24 +35,19 @@ public class ManagementController {
     // get all application by user
     @GetMapping("/applications/user/{userId}")
     public ResponseEntity<List<Application>> getAllApplicationsByUser(@PathVariable Long userId){
-        return ResponseEntity.ok(applicationService.getAllApplicationsByUser(getUser(userId)));
+        return ResponseEntity.ok(applicationService.getAllApplicationsByUser(userId));
     }
 
     // get an application by a user
     @GetMapping("/applications/user/{userId}/id/{applicationId}")
     public ResponseEntity<Application> getApplicationsByUser(@PathVariable Long userId, @PathVariable Long applicationId){
-        return ResponseEntity.ok(applicationService.getApplicationsByIdAndUser(applicationId, getUser(userId)));
+        return ResponseEntity.ok(applicationService.getApplicationsByIdAndUser(applicationId,userId));
     }
 
     // update applications on status (Status.PENDING)
     @PutMapping("/applications/{applicationId}")
     public ResponseEntity<Application> updateApplications(@RequestBody Application application, @PathVariable Long applicationId) {
         return ResponseEntity.ok(applicationService.updateApplications(application, applicationId));
-    }
-
-    public User getUser(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(()-> new UserNotFoundException("User with Id <%d> not found".formatted(userId)));
     }
 
 }
