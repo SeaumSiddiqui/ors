@@ -21,6 +21,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import static com.rms.ors.domain.Permission.*;
+import static com.rms.ors.domain.Role.*;
+
 @RequiredArgsConstructor
 @EnableWebSecurity
 @Configuration
@@ -34,13 +37,30 @@ public class SecurityConfig {
         return httpSecurity.csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(request-> request
-                        .requestMatchers("/auth/**")
+                        .requestMatchers("/login")
                         .permitAll()
-                        .requestMatchers("/user/**").hasAnyAuthority("USER")
-                        .requestMatchers("/management/**").hasAnyAuthority("MANAGEMENT")
-                        .requestMatchers("/admin/**").hasAnyAuthority("ADMIN")
-                        .requestMatchers("/users/**").hasAnyAuthority("ADMIN")
-                        .requestMatchers("/self").hasAnyAuthority("ADMIN", "MODERATOR", "APPLICANT")
+                        .requestMatchers("/users/**", "/admin/**").hasAnyRole(ADMIN.name())
+                        
+                        .requestMatchers("POST", "/users").hasAnyAuthority(ADMIN_CREATE.name())
+                        .requestMatchers("GET", "/users/**").hasAnyAuthority(ADMIN_READ.name())
+                        .requestMatchers("PUT", "/users/**").hasAnyAuthority(ADMIN_UPDATE.name())
+                        .requestMatchers("DELETE", "/users/**").hasAnyAuthority(ADMIN_DELETE_USER.name())
+                        .requestMatchers("DELETE", "/admin/**").hasAnyAuthority(ADMIN_DELETE_APPLICATION.name())
+
+
+                        .requestMatchers("/management/**").hasAnyRole(ADMIN.name(), MANAGEMENT.name())
+
+                        .requestMatchers("PUT", "/management**").hasAnyAuthority(ADMIN_UPDATE.name(),MANAGEMENT_UPDATE.name())
+                        .requestMatchers("GET", "/management**").hasAnyAuthority(ADMIN_READ.name(),MANAGEMENT_READ.name())
+
+
+                        .requestMatchers("/user/**").hasAnyRole(ADMIN.name(), USER.name())
+
+                        .requestMatchers("POST", "/user/**").hasAnyAuthority(ADMIN_CREATE.name(), USER_CREATE.name())
+                        .requestMatchers("GET", "/user/**").hasAnyAuthority(USER_READ.name())
+                        .requestMatchers("PUT", "/user/**").hasAnyAuthority(USER_READ.name())
+
+                        .requestMatchers("/self/**").hasAnyRole(ADMIN.name(), MANAGEMENT.name(), USER.name())
                         .anyRequest()
                         .authenticated())
                 .sessionManagement(manager->manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
