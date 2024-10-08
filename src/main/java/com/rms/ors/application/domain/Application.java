@@ -29,6 +29,7 @@ public class Application {
     private Status applicationStatus;
     private String rejectionMessage;
 
+
     @OneToOne(cascade = CascadeType.ALL)
     private PersonalInformation personalInformation;
 
@@ -41,7 +42,9 @@ public class Application {
     @OneToOne(cascade = CascadeType.ALL)
     private OtherInformation otherInformation ;
 
-    // TODO -> add other information tables
+
+    @OneToMany(mappedBy = "application")
+    private List<Verification> verificationList;
 
     @OneToMany(mappedBy = "application")
     private List<Document> documentList;
