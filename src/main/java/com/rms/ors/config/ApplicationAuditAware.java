@@ -1,6 +1,6 @@
 package com.rms.ors.config;
 
-import com.rms.ors.domain.User;
+import com.rms.ors.user.domain.User;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

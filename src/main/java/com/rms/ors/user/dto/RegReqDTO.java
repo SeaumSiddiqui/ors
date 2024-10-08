@@ -1,7 +1,7 @@
-package com.rms.ors.dto;
+package com.rms.ors.user.dto;
 
-import com.rms.ors.domain.Gender;
-import com.rms.ors.domain.Role;
+import com.rms.ors.shared.Gender;
+import com.rms.ors.shared.Role;
 import lombok.Data;
 
 @Data

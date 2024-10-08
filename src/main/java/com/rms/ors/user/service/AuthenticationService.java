@@ -1,15 +1,15 @@
-package com.rms.ors.service;
+package com.rms.ors.user.service;
 
-import com.rms.ors.domain.Token;
-import com.rms.ors.domain.User;
-import com.rms.ors.dto.LoginReqDTO;
-import com.rms.ors.dto.RegReqDTO;
-import com.rms.ors.dto.AuthResponseDTO;
+import com.rms.ors.user.domain.Token;
+import com.rms.ors.user.domain.User;
+import com.rms.ors.user.dto.LoginReqDTO;
+import com.rms.ors.user.dto.RegReqDTO;
+import com.rms.ors.user.dto.AuthResponseDTO;
 import com.rms.ors.exception.InternalServerErrorException;
 import com.rms.ors.exception.InvalidRefreshTokenException;
 import com.rms.ors.exception.UserNotFoundException;
-import com.rms.ors.repository.TokenRepository;
-import com.rms.ors.repository.UserRepository;
+import com.rms.ors.user.repository.TokenRepository;
+import com.rms.ors.user.repository.UserRepository;
 import com.rms.ors.security.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -138,6 +138,7 @@ public class AuthenticationService {
         }
         tokensByUser.forEach(t-> t.setLoggedOut(true));
         // clean DB by deleting all expired token
+        // TODO -> also delete token on logout
         tokenRepository.deleteAll(tokensByUser);
     }
 

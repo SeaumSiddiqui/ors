@@ -1,4 +1,4 @@
-package com.rms.ors.dto;
+package com.rms.ors.user.dto;
 
 import lombok.Data;
 

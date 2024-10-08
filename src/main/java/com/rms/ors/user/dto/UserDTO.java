@@ -1,10 +1,10 @@
-package com.rms.ors.dto;
+package com.rms.ors.user.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.rms.ors.domain.Gender;
-import com.rms.ors.domain.Role;
-import com.rms.ors.domain.User;
+import com.rms.ors.shared.Gender;
+import com.rms.ors.shared.Role;
+import com.rms.ors.user.domain.User;
 import lombok.Builder;
 import lombok.Data;
 

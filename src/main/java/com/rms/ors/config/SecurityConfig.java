@@ -2,7 +2,7 @@ package com.rms.ors.config;
 
 import com.rms.ors.security.CustomLogoutHandler;
 import com.rms.ors.security.JwtAuthFilter;
-import com.rms.ors.service.UserDetailsServiceImpl;
+import com.rms.ors.user.service.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,8 +22,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import static com.rms.ors.domain.Permission.*;
-import static com.rms.ors.domain.Role.*;
+import static com.rms.ors.shared.Permission.*;
+import static com.rms.ors.shared.Role.*;
 
 @RequiredArgsConstructor
 @EnableWebSecurity

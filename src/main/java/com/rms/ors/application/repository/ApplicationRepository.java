@@ -1,7 +1,7 @@
-package com.rms.ors.repository;
+package com.rms.ors.application.repository;
 
-import com.rms.ors.domain.Application;
-import com.rms.ors.domain.Status;
+import com.rms.ors.application.domain.Application;
+import com.rms.ors.shared.Status;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

@@ -1,6 +1,6 @@
 package com.rms.ors.security;
 
-import com.rms.ors.repository.TokenRepository;
+import com.rms.ors.user.repository.TokenRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;

@@ -1,7 +1,7 @@
 package com.rms.ors.config;
 
-import com.rms.ors.domain.User;
-import com.rms.ors.repository.UserRepository;
+import com.rms.ors.user.domain.User;
+import com.rms.ors.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
@@ -9,7 +9,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import static com.rms.ors.domain.Role.*;
+import static com.rms.ors.shared.Role.*;
 
 @RequiredArgsConstructor
 @Component

@@ -1,8 +1,7 @@
 package com.rms.ors.controller;
 
-import com.rms.ors.domain.Application;
-import com.rms.ors.repository.UserRepository;
-import com.rms.ors.service.ApplicationService;
+import com.rms.ors.application.domain.Application;
+import com.rms.ors.application.service.ApplicationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

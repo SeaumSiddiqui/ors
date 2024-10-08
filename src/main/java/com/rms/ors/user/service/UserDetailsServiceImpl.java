@@ -1,6 +1,6 @@
-package com.rms.ors.service;
+package com.rms.ors.user.service;
 
-import com.rms.ors.repository.UserRepository;
+import com.rms.ors.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

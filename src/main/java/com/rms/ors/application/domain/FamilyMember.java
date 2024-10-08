@@ -1,5 +1,6 @@
-package com.rms.ors.domain;
+package com.rms.ors.application.domain;
 
+import com.rms.ors.shared.MothersStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,7 +14,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class FamilyInfo {
+public class FamilyMember {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

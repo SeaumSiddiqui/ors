@@ -1,4 +1,4 @@
-package com.rms.ors.domain;
+package com.rms.ors.shared;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

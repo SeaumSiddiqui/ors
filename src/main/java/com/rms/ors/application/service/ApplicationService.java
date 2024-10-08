@@ -1,14 +1,14 @@
-package com.rms.ors.service;
+package com.rms.ors.application.service;
 
-import com.rms.ors.domain.Application;
-import com.rms.ors.domain.Role;
-import com.rms.ors.domain.Status;
-import com.rms.ors.domain.User;
+import com.rms.ors.application.domain.Application;
+import com.rms.ors.shared.Role;
+import com.rms.ors.shared.Status;
+import com.rms.ors.user.domain.User;
 import com.rms.ors.exception.ResourceNotFoundException;
-import com.rms.ors.exception.UnauthorizedException;
+import com.rms.ors.exception.UnauthorizedAccessException;
 import com.rms.ors.exception.UserNotFoundException;
-import com.rms.ors.repository.ApplicationRepository;
-import com.rms.ors.repository.UserRepository;
+import com.rms.ors.application.repository.ApplicationRepository;
+import com.rms.ors.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -47,7 +47,7 @@ public class ApplicationService {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
         if (!hasUpdatePermission(application.getApplicationStatus(), username)) {
-            throw new UnauthorizedException("You do not have permission to update this content");
+            throw new UnauthorizedAccessException("You do not have permission to update this content");
         }
         updateApplicationFields(application, updatedApplication);
         return applicationRepository.save(application);
@@ -69,8 +69,8 @@ public class ApplicationService {
 
 
     private void updateApplicationFields(Application existingApplication, Application updatedApplication) {
-        if (updatedApplication.getPersonalInfo() != null) {
-            existingApplication.setPersonalInfo(updatedApplication.getPersonalInfo());
+        if (updatedApplication.getPersonalInformation() != null) {
+            existingApplication.setPersonalInformation(updatedApplication.getPersonalInformation());
         }
     }
 

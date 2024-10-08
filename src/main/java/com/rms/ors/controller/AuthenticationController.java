@@ -1,9 +1,9 @@
 package com.rms.ors.controller;
 
-import com.rms.ors.dto.LoginReqDTO;
-import com.rms.ors.dto.RegReqDTO;
-import com.rms.ors.dto.AuthResponseDTO;
-import com.rms.ors.service.AuthenticationService;
+import com.rms.ors.user.dto.LoginReqDTO;
+import com.rms.ors.user.dto.RegReqDTO;
+import com.rms.ors.user.dto.AuthResponseDTO;
+import com.rms.ors.user.service.AuthenticationService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

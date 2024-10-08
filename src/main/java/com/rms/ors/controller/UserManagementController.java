@@ -1,8 +1,8 @@
 package com.rms.ors.controller;
 
-import com.rms.ors.domain.User;
-import com.rms.ors.dto.*;
-import com.rms.ors.service.UserManagementService;
+import com.rms.ors.user.domain.User;
+import com.rms.ors.user.service.UserManagementService;
+import com.rms.ors.user.dto.UserDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;

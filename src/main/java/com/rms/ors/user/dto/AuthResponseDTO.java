@@ -1,8 +1,8 @@
-package com.rms.ors.dto;
+package com.rms.ors.user.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.rms.ors.domain.Role;
+import com.rms.ors.shared.Role;
 import lombok.Builder;
 import lombok.Data;
 

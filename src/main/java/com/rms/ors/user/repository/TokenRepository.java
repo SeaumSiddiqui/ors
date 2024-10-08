@@ -1,6 +1,6 @@
-package com.rms.ors.repository;
+package com.rms.ors.user.repository;
 
-import com.rms.ors.domain.Token;
+import com.rms.ors.user.domain.Token;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

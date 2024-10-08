@@ -1,4 +1,4 @@
-package com.rms.ors.domain;
+package com.rms.ors.user.domain;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

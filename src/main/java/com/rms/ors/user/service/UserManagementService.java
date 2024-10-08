@@ -1,9 +1,9 @@
-package com.rms.ors.service;
+package com.rms.ors.user.service;
 
-import com.rms.ors.domain.User;
-import com.rms.ors.dto.*;
+import com.rms.ors.user.domain.User;
 import com.rms.ors.exception.UserNotFoundException;
-import com.rms.ors.repository.UserRepository;
+import com.rms.ors.user.repository.UserRepository;
+import com.rms.ors.user.dto.UserDTO;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

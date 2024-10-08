@@ -1,7 +1,7 @@
 package com.rms.ors.security;
 
-import com.rms.ors.domain.Token;
-import com.rms.ors.repository.TokenRepository;
+import com.rms.ors.user.domain.Token;
+import com.rms.ors.user.repository.TokenRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

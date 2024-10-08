@@ -1,5 +1,7 @@
-package com.rms.ors.domain;
+package com.rms.ors.user.domain;
 
+import com.rms.ors.shared.Gender;
+import com.rms.ors.shared.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

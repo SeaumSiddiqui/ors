@@ -1,6 +1,6 @@
 package com.rms.ors.controller;
 
-import com.rms.ors.service.ApplicationService;
+import com.rms.ors.application.service.ApplicationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,7 +15,7 @@ public class AdminController {
     private final ApplicationService applicationService;
 
     // delete an application
-    @DeleteMapping("/application/{applicationId}")
+    @DeleteMapping("/applications/{applicationId}")
     public ResponseEntity<String> deleteApplications(@PathVariable Long applicationId){
         applicationService.deleteApplications(applicationId);
         return ResponseEntity.ok("Application deleted");

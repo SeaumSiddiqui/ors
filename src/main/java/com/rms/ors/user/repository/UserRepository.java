@@ -1,6 +1,6 @@
-package com.rms.ors.repository;
+package com.rms.ors.user.repository;
 
-import com.rms.ors.domain.User;
+import com.rms.ors.user.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

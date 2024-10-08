@@ -1,5 +1,6 @@
-package com.rms.ors.domain;
+package com.rms.ors.application.domain;
 
+import com.rms.ors.shared.Status;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,9 +29,17 @@ public class Application {
     private Status applicationStatus;
     private String rejectionMessage;
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "personal_info_id")
-    private PersonalInfo personalInfo;
+    @OneToOne(cascade = CascadeType.ALL)
+    private PersonalInformation personalInformation;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    private Address address;
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<FamilyMember> familyMemberList;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    private OtherInformation otherInformation ;
 
     // TODO -> add other information tables
 
