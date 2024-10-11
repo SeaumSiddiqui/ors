@@ -4,6 +4,7 @@ import com.rms.ors.user.domain.User;
 import com.rms.ors.user.service.UserManagementService;
 import com.rms.ors.user.dto.UserDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,8 +18,8 @@ public class UserManagementController {
     private final UserManagementService userService;
 
     @GetMapping("/users")
-    public ResponseEntity<List<UserDTO>> getAllUsers(){
-        return ResponseEntity.ok(userService.getAllUsers());
+    public ResponseEntity<Page<UserDTO>> getAllUsers(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size){
+        return ResponseEntity.ok(userService.getAllUsers(page, size));
     }
 
     @GetMapping("/users/{userId}")

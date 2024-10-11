@@ -7,13 +7,13 @@ import com.rms.ors.user.dto.UserDTO;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -22,14 +22,10 @@ public class UserManagementService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public List<UserDTO> getAllUsers() {
+    public Page<UserDTO> getAllUsers(int page, int size) {
         try {
-            List<User> userList = userRepository.findAll();
-
-            return userList.stream()
-                    .map(this::mapUserToDTO)
-                    .collect(Collectors.toList());
-
+            return userRepository.findAll(PageRequest.of(page, size, Sort.by("name"))).map(this::mapUserToDTO);
+            
         } catch (Exception e) {
             log.error("Error retrieving users", e);
             throw new RuntimeException("Failed to retrieve users", e); // Example

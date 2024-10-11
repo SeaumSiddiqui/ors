@@ -38,28 +38,28 @@ public class SecurityConfig {
         return httpSecurity.csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(request-> request
-                        .requestMatchers("/auth/**")
-                        .permitAll()
-                        .requestMatchers("/users/**", "/admin/**").hasAnyRole(ADMIN.name())
+                        .requestMatchers("/auth/**").permitAll()
+
+                        .requestMatchers("/users/**", "/dashboard/**").hasAnyRole(ADMIN.name())
                         
                         .requestMatchers("POST", "/users").hasAnyAuthority(ADMIN_CREATE.name())
-                        .requestMatchers("GET", "/users/**").hasAnyAuthority(ADMIN_READ.name())
+                        .requestMatchers("GET", "/users/**", "/dashboard/**").hasAnyAuthority(ADMIN_READ.name())
                         .requestMatchers("PUT", "/users/**").hasAnyAuthority(ADMIN_UPDATE.name())
-                        .requestMatchers("DELETE", "/users/**").hasAnyAuthority(ADMIN_DELETE_USER.name())
-                        .requestMatchers("DELETE", "/admin/**").hasAnyAuthority(ADMIN_DELETE_APPLICATION.name())
+                        .requestMatchers("DELETE", "/users/**").hasAnyAuthority(ADMIN_DELETE.name())
 
 
                         .requestMatchers("/management/**").hasAnyRole(ADMIN.name(), MANAGEMENT.name())
 
-                        .requestMatchers("PUT", "/management**").hasAnyAuthority(ADMIN_UPDATE.name(),MANAGEMENT_UPDATE.name())
-                        .requestMatchers("GET", "/management**").hasAnyAuthority(ADMIN_READ.name(),MANAGEMENT_READ.name())
+                        .requestMatchers("GET", "/management**").hasAnyAuthority(ADMIN_READ.name(), MANAGEMENT_READ.name())
+                        .requestMatchers("DELETE", "/management/**").hasAnyAuthority(ADMIN_DELETE.name(), MANAGEMENT_DELETE.name())
 
 
-                        .requestMatchers("/user/**").hasAnyRole(ADMIN.name(), USER.name())
+                        .requestMatchers("/user/**").hasAnyRole(ADMIN.name(), MANAGEMENT.name(), USER.name())
 
-                        .requestMatchers("POST", "/user/**").hasAnyAuthority(ADMIN_CREATE.name(), USER_CREATE.name())
+                        .requestMatchers("POST", "/user/**").hasAnyAuthority(ADMIN_CREATE.name(), MANAGEMENT_CREATE.name(), USER_CREATE.name())
+                        .requestMatchers("GET", "/user/applications/{applicationId}").hasAnyAuthority(ADMIN_READ.name(), MANAGEMENT_READ.name(), USER_READ.name())
                         .requestMatchers("GET", "/user/**").hasAnyAuthority(USER_READ.name())
-                        .requestMatchers("PUT", "/user/**").hasAnyAuthority(USER_READ.name())
+                        .requestMatchers("PUT", "/user/**").hasAnyAuthority(ADMIN_UPDATE.name(), MANAGEMENT_UPDATE.name(), USER_UPDATE.name())
 
                         .requestMatchers("/self").hasAnyRole(ADMIN.name(), MANAGEMENT.name(), USER.name())
                         .anyRequest()
@@ -67,7 +67,7 @@ public class SecurityConfig {
                 .sessionManagement(manager->manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                .logout(l-> l
+                .logout(O_O-> O_O
                         .logoutUrl("/logout")
                         .addLogoutHandler(logoutHandler)
                         .logoutSuccessHandler((request, response, authentication) -> SecurityContextHolder.clearContext()))

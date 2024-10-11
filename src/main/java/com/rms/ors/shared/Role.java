@@ -14,18 +14,18 @@ import static com.rms.ors.shared.Permission.*;
 @RequiredArgsConstructor
 public enum Role {
     ADMIN(Set.of(
-            USER_CREATE,
-            MANAGEMENT_READ,
-            MANAGEMENT_UPDATE,
-            ADMIN_DELETE_APPLICATION,
             ADMIN_CREATE,
             ADMIN_READ,
             ADMIN_UPDATE,
-            ADMIN_DELETE_USER)),
+            ADMIN_DELETE
+    )),
     MANAGEMENT(Set.of(
+            MANAGEMENT_CREATE,
             MANAGEMENT_READ,
-            MANAGEMENT_UPDATE
-    )), USER(Set.of(
+            MANAGEMENT_UPDATE,
+            MANAGEMENT_DELETE
+    )),
+    USER(Set.of(
             USER_CREATE,
             USER_READ,
             USER_UPDATE

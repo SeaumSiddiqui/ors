@@ -3,10 +3,11 @@ package com.rms.ors.controller;
 import com.rms.ors.application.domain.Application;
 import com.rms.ors.application.service.ApplicationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.time.LocalDateTime;
 
 @RequestMapping("/management")
 @RequiredArgsConstructor
@@ -14,39 +15,29 @@ import java.util.List;
 public class ManagementController {
     private final ApplicationService applicationService;
 
-    @GetMapping("/applications/status/{status}")
-    public ResponseEntity<List<Application>> getApplicationsByStatus(@PathVariable String status) {
-        return ResponseEntity.ok(applicationService.getApplicationsByStatus(status));
-    }
-
     // get all applications
     @GetMapping("/applications")
-    public ResponseEntity<List<Application>> getAllApplications() {
-        return ResponseEntity.ok(applicationService.getAllApplications());
+    public ResponseEntity<Page<Application>> getAllApplications(@RequestParam(required = false) Long submittedBy,
+                                                                @RequestParam(required = false) Long reviewedBy,
+                                                                @RequestParam(required = false) LocalDateTime startedDate,
+                                                                @RequestParam(required = false) LocalDateTime endDate,
+                                                                @RequestParam(required = false) String fullName,
+                                                                @RequestParam(required = false) String fathersName,
+                                                                @RequestParam(required = false) String applicationStatus,
+                                                                @RequestParam(required = false, defaultValue = "createdAt") String sortField,
+                                                                @RequestParam(required = false, defaultValue = "DESC") String sortDirection,
+                                                                @RequestParam(defaultValue = "1")int page,
+                                                                @RequestParam(defaultValue = "10") int size) {
+
+        return ResponseEntity.ok(applicationService.getAllApplications
+                (submittedBy, reviewedBy, startedDate, endDate, fullName, fathersName, applicationStatus, sortField, sortDirection, page, size));
     }
 
-    // get an application by id
-    @GetMapping("/applications/id/{applicationId}")
-    public ResponseEntity<Application> getApplicationsById(@PathVariable Long applicationId){
-        return ResponseEntity.ok(applicationService.getApplicationsById(applicationId));
-    }
-
-    // get all application by user
-    @GetMapping("/applications/user/{userId}")
-    public ResponseEntity<List<Application>> getAllApplicationsByUser(@PathVariable Long userId){
-        return ResponseEntity.ok(applicationService.getAllApplicationsByUser(userId));
-    }
-
-    // get an application by a user
-    @GetMapping("/applications/user/{userId}/id/{applicationId}")
-    public ResponseEntity<Application> getApplicationsByUser(@PathVariable Long userId, @PathVariable Long applicationId){
-        return ResponseEntity.ok(applicationService.getApplicationsByIdAndUser(applicationId,userId));
-    }
-
-    // update applications on status (Status.PENDING)
-    @PutMapping("/applications/{applicationId}")
-    public ResponseEntity<Application> updateApplications(@RequestBody Application application, @PathVariable Long applicationId) {
-        return ResponseEntity.ok(applicationService.updateApplications(application, applicationId));
+    // delete an application by id
+    @DeleteMapping("/applications/{applicationId}")
+    public ResponseEntity<String> deleteApplications(@PathVariable Long applicationId){
+        applicationService.deleteApplications(applicationId);
+        return ResponseEntity.ok("Application deleted");
     }
 
 }
