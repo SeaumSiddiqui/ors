@@ -1,50 +1,48 @@
 package com.rms.ors.application.service;
 
-import com.rms.ors.application.dto.DashboardData;
+import com.rms.ors.application.repository.ApplicationRepository;
+import com.rms.ors.shared.Status;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-
-import static com.rms.ors.shared.Status.*;
+import java.util.HashMap;
+import java.util.Map;
 
 @RequiredArgsConstructor
 @Service
 public class DashboardService {
-    private final ApplicationService applicationService;
+    private final ApplicationRepository applicationRepository;
 
-    public DashboardData getTodayStats() {
+    public Map<Status, Integer> getTodayStats() {
         LocalDateTime today = LocalDateTime.now().toLocalDate().atStartOfDay();
+        Map<Status, Integer> stats = new HashMap<>();
 
-        int numOfIncomplete = applicationService.countByDateAndStatus(today, INCOMPLETE);
-        int numOfPending = applicationService.countByDateAndStatus(today, PENDING);
-        int numOfRejected = applicationService.countByDateAndStatus(today, REJECTED);
-        int numOfAccepted = applicationService.countByDateAndStatus(today, ACCEPTED);
-        int numOfGranted = applicationService.countByDateAndStatus(today, GRANTED);
-
-        return new DashboardData(numOfIncomplete, numOfPending, numOfRejected, numOfAccepted, numOfGranted);
+        for (Status status: Status.values()) {
+            int count = applicationRepository.countByCreatedAtAfterAndApplicationStatus(today, status);
+            stats.put(status, count);
+        }
+        return stats;
     }
 
-    public DashboardData getTotalStats() {
+    public Map<Status, Integer> getTotalStats() {
+        Map<Status, Integer> stats = new HashMap<>();
 
-        int numOfIncomplete = applicationService.countByStatus(INCOMPLETE);
-        int numOfPending = applicationService.countByStatus(PENDING);
-        int numOfRejected = applicationService.countByStatus(REJECTED);
-        int numOfAccepted = applicationService.countByStatus(ACCEPTED);
-        int numOfGranted = applicationService.countByStatus(GRANTED);
-
-        return new DashboardData(numOfIncomplete, numOfPending, numOfRejected, numOfAccepted, numOfGranted);
+        for (Status status: Status.values()) {
+            int count = applicationRepository.countByApplicationStatus(status);
+            stats.put(status, count);
+        }
+        return stats;
     }
 
-    public DashboardData getUserStats(Long userId) {
+    public  Map<Status, Integer> getUserSpecificStats(Long userId) {
+        Map<Status, Integer> stats = new HashMap<>();
 
-        int numOfIncomplete = applicationService.countByUserAndStatus(userId, INCOMPLETE);
-        int numOfPending = applicationService.countByUserAndStatus(userId, PENDING);
-        int numOfRejected = applicationService.countByUserAndStatus(userId ,REJECTED);
-        int numOfAccepted = applicationService.countByUserAndStatus(userId ,ACCEPTED);
-        int numOfGranted = applicationService.countByUserAndStatus(userId ,GRANTED);
-
-        return new DashboardData(numOfIncomplete, numOfPending, numOfRejected, numOfAccepted, numOfGranted);
+        for (Status status: Status.values()) {
+            int count = applicationRepository.countBySubmittedByAndApplicationStatus(userId, status);
+            stats.put(status, count);
+        }
+        return stats;
     }
 
 }

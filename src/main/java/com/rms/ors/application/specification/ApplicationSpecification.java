@@ -90,11 +90,4 @@ public class ApplicationSpecification {
                 .and(applicationStatus(applicationStatus));
     }
 
-    public static Specification<Application> buildDashboarrdSpecification(Long submittedBy, LocalDateTime startDate, LocalDateTime endDate, String status) {
-        return Specification.where(submittedBy(submittedBy))
-                .and(createdAt(startDate, endDate))
-                .and(lastModifiedAt(startDate, endDate))
-                .and(applicationStatus(status));
-    }
-
 }

@@ -7,10 +7,11 @@ import com.rms.ors.shared.Status;
 import com.rms.ors.user.domain.User;
 import com.rms.ors.exception.ResourceNotFoundException;
 import com.rms.ors.exception.UnauthorizedAccessException;
-import com.rms.ors.exception.UserNotFoundException;
 import com.rms.ors.application.repository.ApplicationRepository;
-import com.rms.ors.user.repository.UserRepository;
+import com.rms.ors.user.service.UserManagementService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,11 +22,12 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class ApplicationService {
     private final ApplicationRepository applicationRepository;
-    private final UserRepository userRepository;
+    private final UserManagementService userManagementService;
 
 
     public Page<Application> getAllApplications(Long submittedBy, Long reviewedBy,
@@ -33,8 +35,14 @@ public class ApplicationService {
                                                 String fullName, String fathersName, String applicationStatus,
                                                 String sortField, String sortDirection, int page, int size) {
 
+        // Get current authenticated user
+        User user = getCurrentUser();
+        // Validate user role, USER can only see applications submitted by themselves
+        if (!isAdminOrManagement(user)) submittedBy = user.getId();
+
         Specification<Application> specification = ApplicationSpecification.buildSearchSpecification
                 (submittedBy, reviewedBy, startedDate, endDate, fullName, fathersName, applicationStatus);
+
         // sort direction DESC/ASC
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
         // sort field createdAt/lastModifiedAt/applicationStatus...
@@ -43,21 +51,18 @@ public class ApplicationService {
         return applicationRepository.findAll(specification, pageable);
     }
 
-    // get all by userId(optional) and status(optional)
-    public Page<Application> getAllApplicationsByUser(Long submittedBy, LocalDateTime startDate,
-                                                      LocalDateTime endDate, String status, int page, int size) {
-
-        Specification<Application> specification = ApplicationSpecification.buildDashboarrdSpecification(submittedBy, startDate, endDate, status);
-
-        Pageable pageable =PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "applicationStatus"));
-
-        return applicationRepository.findAll(specification, pageable);
+    private boolean isAdminOrManagement(User user) {
+        return user.getRole().equals(Role.ADMIN) || user.getRole().equals(Role.MANAGEMENT);
     }
 
 
     public Application getApplicationsById(Long applicationId) {
         return applicationRepository.findById(applicationId)
-                .orElseThrow(()-> new ResourceNotFoundException("Content not found"));
+                .orElseThrow(()->
+                {
+                    log.warn("Application with Id {} not found", applicationId);
+                    return new ResourceNotFoundException("Content not found");
+                });
     }
 
 
@@ -74,26 +79,33 @@ public class ApplicationService {
     }
 
 
-    private boolean hasUpdatePermission(Status applicationStatus, String username) {
-        User user = userRepository.findByEmail(username)
-                .orElseThrow(()-> new UserNotFoundException("User <%s> not found".formatted(username)));
+    private User getCurrentUser() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        return userManagementService.findUserByEmail(username);
+    }
 
-        if (user.getRole().equals(Role.ADMIN)) {
+
+    private boolean hasUpdatePermission(Status applicationStatus) {
+
+        if (getCurrentUser().getRole().equals(Role.ADMIN)) {
             return true;
         }
-        else if (user.getRole().equals(Role.MANAGEMENT) && applicationStatus.equals(Status.PENDING)) {
+        else if (getCurrentUser().getRole().equals(Role.MANAGEMENT) && applicationStatus.equals(Status.PENDING)) {
             return true;
         }
-        else return user.getRole().equals(Role.USER) && (applicationStatus.equals(Status.INCOMPLETE) || applicationStatus.equals(Status.REJECTED));
+        else return getCurrentUser().getRole().equals(Role.USER) && (applicationStatus.equals(Status.INCOMPLETE) || applicationStatus.equals(Status.REJECTED));
     }
 
 
     public Application updateApplications(Application updatedApplication, Long applicationId) {
         Application application = applicationRepository.findById(applicationId)
-                .orElseThrow(()-> new ResourceNotFoundException("Content not found"));
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+                .orElseThrow(()->
+                {
+                    log.warn("Application with Id {} not found for update", applicationId);
+                    return new ResourceNotFoundException("Content not found");
+                });
 
-        if (!hasUpdatePermission(application.getApplicationStatus(), username)) {
+        if (!hasUpdatePermission(application.getApplicationStatus())) {
             throw new UnauthorizedAccessException("You do not have permission to update this content");
         }
         updateApplicationFields(application, updatedApplication);
@@ -102,23 +114,13 @@ public class ApplicationService {
 
 
     public void deleteApplications(Long applicationId) {
-        if (!applicationRepository.existsById(applicationId)) {
+        try {
+            applicationRepository.deleteById(applicationId);
+            log.info("Application with Id {} successfully deleted", applicationId);
+        } catch (EmptyResultDataAccessException ex) {
+            log.warn("Application with Id {} not found for deletion", applicationId);
             throw new ResourceNotFoundException("No content found to delete");
         }
-        applicationRepository.deleteById(applicationId);
     }
 
-
-    // service methods for admin dashboard
-    public int countByDateAndStatus(LocalDateTime today, Status status) {
-        return applicationRepository.countByCreatedAtAfterAndApplicationStatus(today, status);
-    }
-
-    public int countByStatus(Status status) {
-        return applicationRepository.countByApplicationStatus(status);
-    }
-
-    public int countByUserAndStatus(Long userId, Status status) {
-        return applicationRepository.countByCreatedByAndApplicationStatus(userId, status);
-    }
 }

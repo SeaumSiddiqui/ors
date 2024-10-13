@@ -24,5 +24,5 @@ public interface ApplicationRepository extends JpaRepository<Application, Long>,
     // total application count by status
     int countByApplicationStatus(Status applicationStatus);
     // total application count by user
-    int countByCreatedByAndApplicationStatus(Long submittedBy, Status applicationStatus);
+    int countBySubmittedByAndApplicationStatus(Long submittedBy, Status applicationStatus);
 }

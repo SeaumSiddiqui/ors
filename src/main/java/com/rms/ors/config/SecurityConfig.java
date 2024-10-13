@@ -40,6 +40,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(request-> request
                         .requestMatchers("/auth/**").permitAll()
 
+                        // ADMIN
                         .requestMatchers("/users/**", "/dashboard/**").hasAnyRole(ADMIN.name())
                         
                         .requestMatchers("POST", "/users").hasAnyAuthority(ADMIN_CREATE.name())
@@ -47,19 +48,19 @@ public class SecurityConfig {
                         .requestMatchers("PUT", "/users/**").hasAnyAuthority(ADMIN_UPDATE.name())
                         .requestMatchers("DELETE", "/users/**").hasAnyAuthority(ADMIN_DELETE.name())
 
+                        // MANAGEMENT
+                        .requestMatchers("/applications/**").hasAnyRole(ADMIN.name(), MANAGEMENT.name())
 
-                        .requestMatchers("/management/**").hasAnyRole(ADMIN.name(), MANAGEMENT.name())
+                        .requestMatchers("GET", "/applications/**").hasAnyAuthority(MANAGEMENT_READ.name())
+                        .requestMatchers("PUT", "/applications/**").hasAnyAuthority(MANAGEMENT_UPDATE.name())
+                        .requestMatchers("DELETE", "/applications/**").hasAnyAuthority(ADMIN_DELETE.name(), MANAGEMENT_DELETE.name())
 
-                        .requestMatchers("GET", "/management**").hasAnyAuthority(ADMIN_READ.name(), MANAGEMENT_READ.name())
-                        .requestMatchers("DELETE", "/management/**").hasAnyAuthority(ADMIN_DELETE.name(), MANAGEMENT_DELETE.name())
+                        // USER
+                        .requestMatchers("/applications/**").hasAnyRole(ADMIN.name(), USER.name())
 
-
-                        .requestMatchers("/user/**").hasAnyRole(ADMIN.name(), MANAGEMENT.name(), USER.name())
-
-                        .requestMatchers("POST", "/user/**").hasAnyAuthority(ADMIN_CREATE.name(), MANAGEMENT_CREATE.name(), USER_CREATE.name())
-                        .requestMatchers("GET", "/user/applications/{applicationId}").hasAnyAuthority(ADMIN_READ.name(), MANAGEMENT_READ.name(), USER_READ.name())
-                        .requestMatchers("GET", "/user/**").hasAnyAuthority(USER_READ.name())
-                        .requestMatchers("PUT", "/user/**").hasAnyAuthority(ADMIN_UPDATE.name(), MANAGEMENT_UPDATE.name(), USER_UPDATE.name())
+                        .requestMatchers("POST", "/applications/**").hasAnyAuthority(ADMIN_CREATE.name(), USER_CREATE.name())
+                        .requestMatchers("GET", "/applications/**").hasAnyAuthority(ADMIN_READ.name(), USER_READ.name())
+                        .requestMatchers("PUT", "/applications/**").hasAnyAuthority(ADMIN_UPDATE.name(), USER_UPDATE.name())
 
                         .requestMatchers("/self").hasAnyRole(ADMIN.name(), MANAGEMENT.name(), USER.name())
                         .anyRequest()
