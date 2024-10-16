@@ -1,6 +1,7 @@
 package com.rms.ors.application.service;
 
 import com.rms.ors.application.domain.Application;
+import com.rms.ors.application.dto.ApplicationDTO;
 import com.rms.ors.application.specification.ApplicationSpecification;
 import com.rms.ors.shared.Role;
 import com.rms.ors.shared.Status;
@@ -30,10 +31,10 @@ public class ApplicationService {
     private final UserManagementService userManagementService;
 
 
-    public Page<Application> getAllApplications(Long submittedBy, Long reviewedBy,
-                                                LocalDateTime startedDate, LocalDateTime endDate,
-                                                String fullName, String fathersName, String applicationStatus,
-                                                String sortField, String sortDirection, int page, int size) {
+    public Page<ApplicationDTO> getAllApplications(Long submittedBy, Long reviewedBy,
+                                                   LocalDateTime startedDate, LocalDateTime endDate,
+                                                   String fullName, String fathersName, String applicationStatus,
+                                                   String sortField, String sortDirection, int page, int size) {
 
         // Get current authenticated user
         User user = getCurrentUser();
@@ -48,8 +49,9 @@ public class ApplicationService {
         // sort field createdAt/lastModifiedAt/applicationStatus...
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortField));
 
-        return applicationRepository.findAll(specification, pageable);
+        return applicationRepository.findAll(specification, pageable).map(this::mapApplicationToDTO);
     }
+
 
     private boolean isAdminOrManagement(User user) {
         return user.getRole().equals(Role.ADMIN) || user.getRole().equals(Role.MANAGEMENT);
@@ -121,6 +123,18 @@ public class ApplicationService {
             log.warn("Application with Id {} not found for deletion", applicationId);
             throw new ResourceNotFoundException("No content found to delete");
         }
+    }
+
+
+    private ApplicationDTO mapApplicationToDTO(Application application) {
+        return ApplicationDTO.builder()
+                .fullName(application.getPersonalInformation().getFullName())
+                .fathersName(application.getPersonalInformation().getFathersName())
+                .mothersName(application.getPersonalInformation().getMothersName())
+                .district(application.getAddress().getPresentDistrict())
+                .subDistrict(application.getAddress().getPresentSubDistrict())
+                .applicationStatus(application.getApplicationStatus())
+                .build();
     }
 
 }

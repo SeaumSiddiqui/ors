@@ -12,7 +12,6 @@ public enum Permission {
     ADMIN_UPDATE("admin:update"),
     ADMIN_DELETE("admin:delete"),
 
-    MANAGEMENT_CREATE("management:create"),
     MANAGEMENT_READ("management:read"),
     MANAGEMENT_UPDATE("management:update"),
     MANAGEMENT_DELETE("management:delete"),

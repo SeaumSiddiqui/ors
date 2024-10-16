@@ -20,7 +20,6 @@ public enum Role {
             ADMIN_DELETE
     )),
     MANAGEMENT(Set.of(
-            MANAGEMENT_CREATE,
             MANAGEMENT_READ,
             MANAGEMENT_UPDATE,
             MANAGEMENT_DELETE

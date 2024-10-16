@@ -24,6 +24,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import static com.rms.ors.shared.Permission.*;
 import static com.rms.ors.shared.Role.*;
+import static org.springframework.http.HttpMethod.*;
 
 @RequiredArgsConstructor
 @EnableWebSecurity
@@ -40,29 +41,33 @@ public class SecurityConfig {
                 .authorizeHttpRequests(request-> request
                         .requestMatchers("/auth/**").permitAll()
 
-                        // ADMIN
-                        .requestMatchers("/users/**", "/dashboard/**").hasAnyRole(ADMIN.name())
-                        
-                        .requestMatchers("POST", "/users").hasAnyAuthority(ADMIN_CREATE.name())
-                        .requestMatchers("GET", "/users/**", "/dashboard/**").hasAnyAuthority(ADMIN_READ.name())
-                        .requestMatchers("PUT", "/users/**").hasAnyAuthority(ADMIN_UPDATE.name())
-                        .requestMatchers("DELETE", "/users/**").hasAnyAuthority(ADMIN_DELETE.name())
+                        // Only ADMIN & MANAGEMENT Can Delete Applications
+                        .requestMatchers("/delete/**").hasAnyRole(ADMIN.name(), MANAGEMENT.name())
+                        .requestMatchers(DELETE, "/delete/**").hasAnyAuthority(ADMIN_DELETE.name(), MANAGEMENT_DELETE.name())
 
-                        // MANAGEMENT
-                        .requestMatchers("/applications/**").hasAnyRole(ADMIN.name(), MANAGEMENT.name())
+                        // Only ADMIN & USER Can Create Applications
+                        .requestMatchers("/create").hasAnyRole(ADMIN.name(), USER.name())
+                        .requestMatchers(POST, "/create").hasAnyAuthority(ADMIN_CREATE.name(), USER_CREATE.name())
 
-                        .requestMatchers("GET", "/applications/**").hasAnyAuthority(MANAGEMENT_READ.name())
-                        .requestMatchers("PUT", "/applications/**").hasAnyAuthority(MANAGEMENT_UPDATE.name())
-                        .requestMatchers("DELETE", "/applications/**").hasAnyAuthority(ADMIN_DELETE.name(), MANAGEMENT_DELETE.name())
+                        // Applications Management
+                        .requestMatchers("/applications/**").hasAnyRole(ADMIN.name(), MANAGEMENT.name(), USER.name())
 
-                        // USER
-                        .requestMatchers("/applications/**").hasAnyRole(ADMIN.name(), USER.name())
+                        .requestMatchers(GET, "/applications/**").hasAnyAuthority(ADMIN_READ.name(), MANAGEMENT_READ.name(), USER_READ.name())
+                        .requestMatchers(PUT, "/applications/**").hasAnyAuthority(ADMIN_UPDATE.name(), MANAGEMENT_UPDATE.name(), USER_UPDATE.name())
 
-                        .requestMatchers("POST", "/applications/**").hasAnyAuthority(ADMIN_CREATE.name(), USER_CREATE.name())
-                        .requestMatchers("GET", "/applications/**").hasAnyAuthority(ADMIN_READ.name(), USER_READ.name())
-                        .requestMatchers("PUT", "/applications/**").hasAnyAuthority(ADMIN_UPDATE.name(), USER_UPDATE.name())
 
+                        // User Management
                         .requestMatchers("/self").hasAnyRole(ADMIN.name(), MANAGEMENT.name(), USER.name())
+                        .requestMatchers(GET, "/self").hasAnyAuthority(ADMIN_READ.name(), MANAGEMENT_READ.name(), USER_READ.name())
+
+                        // ADMIN Only
+                        .requestMatchers("/users/**", "/dashboard/**").hasRole(ADMIN.name())
+                        
+                        .requestMatchers(POST, "/users").hasAuthority(ADMIN_CREATE.name())
+                        .requestMatchers(GET, "/users/**", "/dashboard/**").hasAuthority(ADMIN_READ.name())
+                        .requestMatchers(PUT, "/users/**").hasAuthority(ADMIN_UPDATE.name())
+                        .requestMatchers(DELETE, "/users/**").hasAuthority(ADMIN_DELETE.name())
+
                         .anyRequest()
                         .authenticated())
                 .sessionManagement(manager->manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
