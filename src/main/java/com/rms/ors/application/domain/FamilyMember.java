@@ -1,5 +1,6 @@
 package com.rms.ors.application.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.rms.ors.shared.MaritalStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -23,4 +24,8 @@ public class FamilyMember {
     private String occupation;
     @Enumerated(EnumType.STRING)
     private MaritalStatus maritalStatus;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonBackReference
+    private Application application;
 }

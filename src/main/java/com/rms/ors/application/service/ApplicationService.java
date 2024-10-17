@@ -1,6 +1,9 @@
 package com.rms.ors.application.service;
 
+import com.rms.ors.application.domain.Address;
 import com.rms.ors.application.domain.Application;
+import com.rms.ors.application.domain.FamilyMember;
+import com.rms.ors.application.domain.PrimaryInformation;
 import com.rms.ors.application.dto.ApplicationDTO;
 import com.rms.ors.application.specification.ApplicationSpecification;
 import com.rms.ors.shared.Role;
@@ -22,6 +25,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Iterator;
+import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -74,31 +79,6 @@ public class ApplicationService {
     }
 
 
-    private void updateApplicationFields(Application existingApplication, Application updatedApplication) {
-        if (updatedApplication.getPersonalInformation() != null) {
-            existingApplication.setPersonalInformation(updatedApplication.getPersonalInformation());
-        }
-    }
-
-
-    private User getCurrentUser() {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        return userManagementService.findUserByEmail(username);
-    }
-
-
-    private boolean hasUpdatePermission(Status applicationStatus) {
-
-        if (getCurrentUser().getRole().equals(Role.ADMIN)) {
-            return true;
-        }
-        else if (getCurrentUser().getRole().equals(Role.MANAGEMENT) && applicationStatus.equals(Status.PENDING)) {
-            return true;
-        }
-        else return getCurrentUser().getRole().equals(Role.USER) && (applicationStatus.equals(Status.INCOMPLETE) || applicationStatus.equals(Status.REJECTED));
-    }
-
-
     public Application updateApplications(Application updatedApplication, Long applicationId) {
         Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(()->
@@ -126,11 +106,137 @@ public class ApplicationService {
     }
 
 
+    private boolean hasUpdatePermission(Status applicationStatus) {
+
+        if (getCurrentUser().getRole().equals(Role.ADMIN)) {
+            return true;
+        }
+        else if (getCurrentUser().getRole().equals(Role.MANAGEMENT) && applicationStatus.equals(Status.PENDING)) {
+            return true;
+        }
+        else return getCurrentUser().getRole().equals(Role.USER) && (applicationStatus.equals(Status.INCOMPLETE) || applicationStatus.equals(Status.REJECTED));
+    }
+
+
+    private void updateApplicationFields(Application existingApplication, Application updatedApplication) {
+        // Updatable fields inside application class
+        existingApplication.setApplicationStatus(updatedApplication.getApplicationStatus());
+        existingApplication.setRejectionMessage(updatedApplication.getRejectionMessage());
+        // Personal Information
+        if (updatedApplication.getPrimaryInformation() != null) {
+            PrimaryInformation existing = existingApplication.getPrimaryInformation();
+            PrimaryInformation updated = updatedApplication.getPrimaryInformation();
+
+            updatePrimaryInformationFields(existing, updated);
+        }
+
+        // Address
+        if (updatedApplication.getAddress() != null) {
+            Address existing = existingApplication.getAddress();
+            Address updated = updatedApplication.getAddress();
+
+            updateAddressFields(existing, updated);
+        }
+
+        // Family Member
+        if (existingApplication.getFamilyMemberList() != null) {
+            List<FamilyMember> existing = existingApplication.getFamilyMemberList();
+            List<FamilyMember> updated = updatedApplication.getFamilyMemberList();
+
+            updateFamilyMemberFields(existingApplication, existing, updated);
+        }
+    }
+
+    private void updateFamilyMemberFields(Application existingApplication, List<FamilyMember> existing, List<FamilyMember> updated) {
+
+        // Remove member that are no longer present in the update
+        Iterator<FamilyMember> iterator = existing.iterator();
+        while (iterator.hasNext()) {
+            FamilyMember existingMember = iterator.next();
+            boolean stillExist = updated.stream()
+                    .anyMatch(up-> up.getId() != null &&  up.getId().equals(existingMember.getId()));
+
+            if (!stillExist) {
+                iterator.remove();
+            }
+        }
+
+        // Update or add family member
+        for (FamilyMember updatedMember : updated) {
+            if (updatedMember.getId() != null) {
+                FamilyMember existingMember = existing
+                        .stream()
+                        .filter(f -> f.getId().equals(updatedMember.getId()))
+                        .findFirst()
+                        .orElse(null);
+
+                if (existingMember != null) {
+                    // Update existing family member's fields
+                    existingMember.setName(updatedMember.getName());
+                    existingMember.setAge(updatedMember.getAge());
+                    existingMember.setSiblingsGrade(updatedMember.getSiblingsGrade());
+                    existingMember.setOccupation(updatedMember.getOccupation());
+                    existingMember.setMaritalStatus(updatedMember.getMaritalStatus());
+                }
+            } else {
+                // Add a new family member to the list
+                boolean isAlreadyAdded = existing.stream()
+                        .anyMatch(n -> n.getName().equals(updatedMember.getName()) && n.getAge() == updatedMember.getAge());
+
+                if (!isAlreadyAdded) {
+                    updatedMember.setApplication(existingApplication);
+                    existing.add(updatedMember);
+                }
+            }
+        }
+    }
+
+
+    private void updateAddressFields(Address existing, Address updated) {
+        existing.setPresentVillage(updated.getPresentVillage());
+        existing.setPresentUnion(updated.getPresentUnion());
+        existing.setPresentSubDistrict(updated.getPresentSubDistrict());
+        existing.setPresentDistrict(updated.getPresentDistrict());
+        existing.setPresentLocation(updated.getPresentLocation());
+
+        existing.setPermanentVillage(updated.getPermanentVillage());
+        existing.setPresentUnion(updated.getPresentUnion());
+        existing.setPermanentSubDistrict(updated.getPermanentSubDistrict());
+        existing.setPermanentDistrict(updated.getPermanentDistrict());
+        existing.setPermanentLocation(updated.getPermanentLocation());
+    }
+
+
+    private void updatePrimaryInformationFields(PrimaryInformation existing, PrimaryInformation updated) {
+        existing.setFullName(updated.getFullName());
+        existing.setBcRegistration(updated.getBcRegistration());
+        existing.setFathersName(updated.getFathersName());
+        existing.setMothersName(updated.getMothersName());
+        existing.setDob(updated.getDob());
+        existing.setPlaceOfBirth(updated.getPlaceOfBirth());
+        existing.setDod(updated.getDod());
+        existing.setCauseOfDeath(updated.getCauseOfDeath());
+        existing.setMothersStatus(updated.getMothersStatus());
+        existing.setMothersOccupation(updated.getMothersOccupation());
+        existing.setAnnualIncome(updated.getAnnualIncome());
+        existing.setFixedAsset(updated.getFixedAsset());
+        existing.setAcademicInstitution(updated.getAcademicInstitution());
+        existing.setGrade(updated.getGrade());
+        existing.setGender(updated.getGender());
+    }
+
+
+    private User getCurrentUser() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        return userManagementService.findUserByEmail(username);
+    }
+
+
     private ApplicationDTO mapApplicationToDTO(Application application) {
         return ApplicationDTO.builder()
-                .fullName(application.getPersonalInformation().getFullName())
-                .fathersName(application.getPersonalInformation().getFathersName())
-                .mothersName(application.getPersonalInformation().getMothersName())
+                .fullName(application.getPrimaryInformation().getFullName())
+                .fathersName(application.getPrimaryInformation().getFathersName())
+                .mothersName(application.getPrimaryInformation().getMothersName())
                 .district(application.getAddress().getPresentDistrict())
                 .subDistrict(application.getAddress().getPresentSubDistrict())
                 .applicationStatus(application.getApplicationStatus())

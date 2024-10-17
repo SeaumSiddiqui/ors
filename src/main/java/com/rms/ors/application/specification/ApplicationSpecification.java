@@ -1,6 +1,6 @@
 package com.rms.ors.application.specification;
 import com.rms.ors.application.domain.Application;
-import com.rms.ors.application.domain.PersonalInformation;
+import com.rms.ors.application.domain.PrimaryInformation;
 import com.rms.ors.shared.Status;
 import jakarta.persistence.criteria.Join;
 import org.springframework.data.jpa.domain.Specification;
@@ -50,7 +50,7 @@ public class ApplicationSpecification {
     public static Specification<Application> personalInformationFullName(String fullName) {
         return (root, query, criteriaBuilder) -> {
             if (fullName != null) {
-                Join<Application, PersonalInformation> personalInfoJoin = root.join("personalInformation");
+                Join<Application, PrimaryInformation> personalInfoJoin = root.join("primaryInformation");
                 return criteriaBuilder.like(personalInfoJoin.get("fullName"), String.format("%%%s%%", fullName));
             }
             return criteriaBuilder.conjunction();
@@ -60,7 +60,7 @@ public class ApplicationSpecification {
     public static Specification<Application> personalInformationFathersName(String fathersName) {
         return (root, query, criteriaBuilder) -> {
             if (fathersName != null) {
-                Join<Application, PersonalInformation> personalInfoJoin = root.join("personalInformation");
+                Join<Application, PrimaryInformation> personalInfoJoin = root.join("primaryInformation");
                 return criteriaBuilder.like(personalInfoJoin.get("fathersName"), String.format("%%%s%%", fathersName));
             }
             return criteriaBuilder.conjunction();

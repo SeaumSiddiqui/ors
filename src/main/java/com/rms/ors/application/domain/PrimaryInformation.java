@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 
 import java.time.LocalDate;
 
@@ -15,7 +17,9 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class PersonalInformation {
+@DynamicInsert
+@DynamicUpdate
+public class PrimaryInformation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -28,6 +32,7 @@ public class PersonalInformation {
     private String placeOfBirth;
     private LocalDate dod;
     private String causeOfDeath;
+
     @Enumerated(EnumType.STRING)
     private MothersStatus mothersStatus;
     private String mothersOccupation; // TODO -> will set it to an enum

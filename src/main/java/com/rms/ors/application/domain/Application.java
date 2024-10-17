@@ -1,5 +1,6 @@
 package com.rms.ors.application.domain;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.rms.ors.shared.Status;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -29,26 +30,28 @@ public class Application {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Enumerated(EnumType.STRING)
     private Status applicationStatus;
     private String rejectionMessage;
 
 
     @OneToOne(cascade = CascadeType.ALL)
-    private PersonalInformation personalInformation;
+    private PrimaryInformation primaryInformation;
 
     @OneToOne(cascade = CascadeType.ALL)
     private Address address;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @JsonManagedReference
     private List<FamilyMember> familyMemberList;
 
     @OneToOne(cascade = CascadeType.ALL)
-    private OtherInformation otherInformation ;
+    private BasicInformation basicInformation;
 
 
     @OneToMany(mappedBy = "application")
-    private List<Verification> verificationList;
+    private List<Verification> verificationList; // TODO-> remove:: this should be filled by user.getSign()
 
     @OneToMany(mappedBy = "application")
     private List<Document> documentList;
