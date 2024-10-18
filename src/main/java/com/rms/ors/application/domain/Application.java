@@ -1,5 +1,6 @@
 package com.rms.ors.application.domain;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.rms.ors.shared.Status;
 import jakarta.persistence.*;
@@ -53,6 +54,9 @@ public class Application {
     @OneToMany(mappedBy = "application")
     private List<Verification> verificationList; // TODO-> remove:: this should be filled by user.getSign()
 
+    @OneToOne(cascade = CascadeType.ALL)
+    private Transaction transaction;
+
     @OneToMany(mappedBy = "application")
     private List<Document> documentList;
 
@@ -67,10 +71,12 @@ public class Application {
 
 
     @CreatedDate
+    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @LastModifiedDate
+    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
     @Column(insertable = false)
     private LocalDateTime lastModifiedAt;
 }

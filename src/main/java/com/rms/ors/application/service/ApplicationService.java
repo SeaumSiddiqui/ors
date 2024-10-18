@@ -1,9 +1,6 @@
 package com.rms.ors.application.service;
 
-import com.rms.ors.application.domain.Address;
-import com.rms.ors.application.domain.Application;
-import com.rms.ors.application.domain.FamilyMember;
-import com.rms.ors.application.domain.PrimaryInformation;
+import com.rms.ors.application.domain.*;
 import com.rms.ors.application.dto.ApplicationDTO;
 import com.rms.ors.application.specification.ApplicationSpecification;
 import com.rms.ors.shared.Role;
@@ -139,13 +136,60 @@ public class ApplicationService {
         }
 
         // Family Member
-        if (existingApplication.getFamilyMemberList() != null) {
+        if (updatedApplication.getFamilyMemberList() != null) {
             List<FamilyMember> existing = existingApplication.getFamilyMemberList();
             List<FamilyMember> updated = updatedApplication.getFamilyMemberList();
 
             updateFamilyMemberFields(existingApplication, existing, updated);
         }
+
+        // Basic Information
+        if (updatedApplication.getBasicInformation() != null) {
+            BasicInformation existing = existingApplication.getBasicInformation();
+            BasicInformation updated = updatedApplication.getBasicInformation();
+
+            updateBasicInformationFields(existing, updated);
+        }
+
+        // Verification
+
+        // Documents
+
+        // Transaction
+        if (updatedApplication.getTransaction() != null) {
+            Transaction existing = existingApplication.getTransaction();
+            Transaction updated = updatedApplication.getTransaction();
+
+            existing.setAccountTitle(updated.getAccountTitle());
+            existing.setAccountNumber(updated.getAccountNumber());
+            existing.setBankTitle(updated.getBankTitle());
+            existing.setBranch(updated.getBranch());
+            existing.setRoutingNumber(updated.getRoutingNumber());
+        }
     }
+
+    private static void updateBasicInformationFields(BasicInformation existing, BasicInformation updated) {
+        existing.setPhysicalCondition(updated.getPhysicalCondition());
+        existing.setHasCriticalIllness(updated.isHasCriticalIllness());
+        existing.setTypeOfIllness(updated.getTypeOfIllness());
+        existing.setResident(updated.isResident());
+        existing.setResidenceStatus(updated.getResidenceStatus());
+        existing.setHouseType(updated.getHouseType());
+
+        existing.setBedroom(updated.getBedroom());
+        existing.setBalcony(updated.getBalcony());
+        existing.setKitchen(updated.getKitchen());
+        existing.setStore(updated.getStore());
+        existing.setRoom(updated.getRoom());
+        existing.setHasTubeWell(updated.isHasTubeWell());
+
+        existing.setGuardiansName(updated.getGuardiansName());
+        existing.setGuardiansRelation(updated.getGuardiansRelation());
+        existing.setNID(updated.getNID());
+        existing.setCell1(updated.getCell1());
+        existing.setCell2(updated.getCell2());
+    }
+
 
     private void updateFamilyMemberFields(Application existingApplication, List<FamilyMember> existing, List<FamilyMember> updated) {
 

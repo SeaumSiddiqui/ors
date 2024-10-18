@@ -1,5 +1,6 @@
 package com.rms.ors.application.domain;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.rms.ors.shared.Gender;
 import com.rms.ors.shared.MothersStatus;
 import jakarta.persistence.*;
@@ -28,8 +29,10 @@ public class PrimaryInformation {
     private String bcRegistration;
     private String fathersName;
     private String mothersName;
+    @JsonFormat(pattern = "dd-MM-yyyy")
     private LocalDate dob;
     private String placeOfBirth;
+    @JsonFormat(pattern = "dd-MM-yyyy")
     private LocalDate dod;
     private String causeOfDeath;
 

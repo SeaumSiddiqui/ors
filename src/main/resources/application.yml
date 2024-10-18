@@ -14,10 +14,6 @@ spring:
         format_sql: true  # Formats SQL queries for better readability in the console
         dialect: org.hibernate.dialect.MySQL8Dialect  # Use appropriate dialect for your DB version
 
-  jackson:
-    serialization:
-      write-dates-as-timestamps: false  # Properly format LocalDate/LocalDateTime
-
 server:
   port: 5050  # Application will run on port 8080 by default
   error:

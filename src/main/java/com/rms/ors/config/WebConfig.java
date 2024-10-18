@@ -1,10 +1,15 @@
 package com.rms.ors.config;
 
 
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.format.datetime.standard.DateTimeFormatterRegistrar;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.lang.NonNull;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -24,15 +29,6 @@ public class WebConfig {
                         .allowedMethods("GET", "POST", "PUT", "DELETE")
                         .allowedOrigins("*");
             }
-
-            @Override
-            public void addFormatters(@NonNull FormatterRegistry registry) {
-                // Set the global date-time pattern
-                DateTimeFormatterRegistrar registrar = new DateTimeFormatterRegistrar();
-                registrar.setDateTimeFormatter(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"));
-                registrar.registerFormatters(registry);
-            }
         };
     }
-
 }

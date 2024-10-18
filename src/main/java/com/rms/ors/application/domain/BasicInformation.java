@@ -41,7 +41,7 @@ public class BasicInformation {
     private int kitchen;
     private int store;
     private int room;
-    private boolean hastTubeWell;
+    private boolean hasTubeWell;
 
     private String guardiansName;
     private String guardiansRelation;
