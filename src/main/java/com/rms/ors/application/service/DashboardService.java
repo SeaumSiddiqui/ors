@@ -39,7 +39,7 @@ public class DashboardService {
         Map<Status, Integer> stats = new HashMap<>();
 
         for (Status status: Status.values()) {
-            int count = applicationRepository.countBySubmittedByAndApplicationStatus(userId, status);
+            int count = applicationRepository.countByCreatedByAndApplicationStatus(userId, status);
             stats.put(status, count);
         }
         return stats;

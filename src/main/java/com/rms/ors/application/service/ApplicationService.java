@@ -9,7 +9,6 @@ import com.rms.ors.user.domain.User;
 import com.rms.ors.exception.ResourceNotFoundException;
 import com.rms.ors.exception.UnauthorizedAccessException;
 import com.rms.ors.application.repository.ApplicationRepository;
-import com.rms.ors.user.service.UserManagementService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -18,33 +17,31 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Iterator;
 import java.util.List;
 
+import static com.rms.ors.shared.Status.*;
+
 @Slf4j
 @RequiredArgsConstructor
 @Service
 public class ApplicationService {
     private final ApplicationRepository applicationRepository;
-    private final UserManagementService userManagementService;
 
 
-    public Page<ApplicationDTO> getAllApplications(Long submittedBy, Long reviewedBy,
+    public Page<ApplicationDTO> getAllApplications(User currentUser, Long createdBy, Long reviewedBy,
                                                    LocalDateTime startedDate, LocalDateTime endDate,
                                                    String fullName, String fathersName, String applicationStatus,
                                                    String sortField, String sortDirection, int page, int size) {
 
-        // Get current authenticated user
-        User user = getCurrentUser();
         // Validate user role, USER can only see applications submitted by themselves
-        if (!isAdminOrManagement(user)) submittedBy = user.getId();
+        if (!isAdminOrManagement(currentUser)) createdBy = currentUser.getId();
 
         Specification<Application> specification = ApplicationSpecification.buildSearchSpecification
-                (submittedBy, reviewedBy, startedDate, endDate, fullName, fathersName, applicationStatus);
+                (createdBy, reviewedBy, startedDate, endDate, fullName, fathersName, applicationStatus);
 
         // sort direction DESC/ASC
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
@@ -70,24 +67,19 @@ public class ApplicationService {
     }
 
 
-    public Application createApplications(Application application) {
-        application.setApplicationStatus(Status.INCOMPLETE);
-        return applicationRepository.save(application);
+    public ApplicationDTO createApplications(Application application) {
+        application.setApplicationStatus(INCOMPLETE);
+        return mapApplicationToDTO(applicationRepository.save(application));
     }
 
 
-    public Application updateApplications(Application updatedApplication, Long applicationId) {
-        Application application = applicationRepository.findById(applicationId)
-                .orElseThrow(()->
-                {
-                    log.warn("Application with Id {} not found for update", applicationId);
-                    return new ResourceNotFoundException("Content not found");
-                });
+    public Application updateApplications(User currentUser, Application updatedApplication, Long applicationId) {
+        Application application = getApplicationsById(applicationId);
 
-        if (!hasUpdatePermission(application.getApplicationStatus())) {
+        if (!hasUpdatePermission(currentUser.getRole(), application.getApplicationStatus())) {
             throw new UnauthorizedAccessException("You do not have permission to update this content");
         }
-        updateApplicationFields(application, updatedApplication);
+        updateApplicationFields(currentUser, application, updatedApplication);
         return applicationRepository.save(application);
     }
 
@@ -103,22 +95,26 @@ public class ApplicationService {
     }
 
 
-    private boolean hasUpdatePermission(Status applicationStatus) {
+    private boolean hasUpdatePermission(Role currentUserRole, Status applicationStatus) {
 
-        if (getCurrentUser().getRole().equals(Role.ADMIN)) {
+        if (currentUserRole.equals(Role.ADMIN)) {
             return true;
         }
-        else if (getCurrentUser().getRole().equals(Role.MANAGEMENT) && applicationStatus.equals(Status.PENDING)) {
+        else if (currentUserRole.equals(Role.MANAGEMENT) && applicationStatus.equals(PENDING)) {
             return true;
         }
-        else return getCurrentUser().getRole().equals(Role.USER) && (applicationStatus.equals(Status.INCOMPLETE) || applicationStatus.equals(Status.REJECTED));
+        else return currentUserRole.equals(Role.USER) && (applicationStatus.equals(INCOMPLETE) || applicationStatus.equals(REJECTED));
     }
 
 
-    private void updateApplicationFields(Application existingApplication, Application updatedApplication) {
-        // Updatable fields inside application class
+    private void updateApplicationFields(User currentUser, Application existingApplication, Application updatedApplication) {
+        // Application
         existingApplication.setApplicationStatus(updatedApplication.getApplicationStatus());
-        existingApplication.setRejectionMessage(updatedApplication.getRejectionMessage());
+        // If application gets rejected
+        if (updatedApplication.getApplicationStatus().equals(REJECTED)) {
+            existingApplication.setRejectionMessage(updatedApplication.getRejectionMessage());
+        }
+
         // Personal Information
         if (updatedApplication.getPrimaryInformation() != null) {
             PrimaryInformation existing = existingApplication.getPrimaryInformation();
@@ -152,6 +148,14 @@ public class ApplicationService {
         }
 
         // Verification
+        if (updatedApplication.getApplicationStatus().equals(ACCEPTED)) {
+            Verification existing = existingApplication.getVerification();
+            existing.setReviewedBy(currentUser.getSignatureURL());
+        }
+        if (updatedApplication.getApplicationStatus().equals(GRANTED)) {
+            Verification existing = existingApplication.getVerification();
+            existing.setInvestigatedBy(currentUser.getSignatureURL());
+        }
 
         // Documents
 
@@ -267,12 +271,6 @@ public class ApplicationService {
         existing.setAcademicInstitution(updated.getAcademicInstitution());
         existing.setGrade(updated.getGrade());
         existing.setGender(updated.getGender());
-    }
-
-
-    private User getCurrentUser() {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        return userManagementService.findUserByEmail(username);
     }
 
 

@@ -50,20 +50,19 @@ public class Application {
     @OneToOne(cascade = CascadeType.ALL)
     private BasicInformation basicInformation;
 
-
-    @OneToMany(mappedBy = "application")
-    private List<Verification> verificationList; // TODO-> remove:: this should be filled by user.getSign()
+    @OneToOne(cascade = CascadeType.ALL)
+    private Verification verification;
 
     @OneToOne(cascade = CascadeType.ALL)
     private Transaction transaction;
 
-    @OneToMany(mappedBy = "application")
-    private List<Document> documentList;
+    @OneToOne(cascade = CascadeType.ALL)
+    private Document document;
 
 
     @CreatedBy
     @Column(nullable = false, updatable = false)
-    private Long submittedBy;
+    private Long createdBy;
 
     @LastModifiedBy
     @Column(insertable = false)

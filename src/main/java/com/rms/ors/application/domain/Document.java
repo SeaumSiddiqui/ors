@@ -20,9 +20,6 @@ public class Document {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String documentName;
-    private String documentURL;
+    // TODO-> add all documents;
 
-    @ManyToOne
-    private Application application;
 }

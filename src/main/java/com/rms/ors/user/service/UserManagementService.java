@@ -39,14 +39,14 @@ public class UserManagementService {
         }));
     }
 
-
+    /**
     public User findUserByEmail(String username) {
         return userRepository.findByEmail(username)
                 .orElseThrow(()-> {
                     log.info("User {} not found", username);
                     return new UserNotFoundException("User <%s> not found".formatted(username));
                 });
-    }
+    } **/
 
 
     public UserDTO updateUser(Long userId, User updatedUser) {

@@ -3,9 +3,11 @@ package com.rms.ors.controller;
 import com.rms.ors.application.domain.Application;
 import com.rms.ors.application.dto.ApplicationDTO;
 import com.rms.ors.application.service.ApplicationService;
+import com.rms.ors.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -17,7 +19,8 @@ public class ApplicationController {
 
     // get all applications
     @GetMapping("/applications")
-    public ResponseEntity<Page<ApplicationDTO>> getAllApplications(@RequestParam(required = false) Long submittedBy,
+    public ResponseEntity<Page<ApplicationDTO>> getAllApplications(@AuthenticationPrincipal User currentUser,
+                                                                   @RequestParam(required = false) Long submittedBy,
                                                                    @RequestParam(required = false) Long reviewedBy,
                                                                    @RequestParam(required = false) LocalDateTime startedDate,
                                                                    @RequestParam(required = false) LocalDateTime endDate,
@@ -30,7 +33,7 @@ public class ApplicationController {
                                                                    @RequestParam(defaultValue = "10") int size) {
 
         return ResponseEntity.ok(applicationService.getAllApplications
-                (submittedBy, reviewedBy, startedDate, endDate, fullName, fathersName, applicationStatus, sortField, sortDirection, page, size));
+                (currentUser, submittedBy, reviewedBy, startedDate, endDate, fullName, fathersName, applicationStatus, sortField, sortDirection, page, size));
     }
 
     // get application by id
@@ -42,14 +45,14 @@ public class ApplicationController {
 
     // create application
     @PostMapping("/create")
-    public ResponseEntity<Application> createApplications(@RequestBody Application application) {
+    public ResponseEntity<ApplicationDTO> createApplications(@RequestBody Application application) {
         return ResponseEntity.ok(applicationService.createApplications(application));
     }
 
     // update application
     @PutMapping("/applications/{applicationId}")
-    public ResponseEntity<Application> updateApplications(@RequestBody Application application, @PathVariable Long applicationId) {
-        return ResponseEntity.ok(applicationService.updateApplications(application, applicationId));
+    public ResponseEntity<Application> updateApplications(@AuthenticationPrincipal User currentUser, @RequestBody Application application, @PathVariable Long applicationId) {
+        return ResponseEntity.ok(applicationService.updateApplications(currentUser, application, applicationId));
     }
 
     // delete an application by id

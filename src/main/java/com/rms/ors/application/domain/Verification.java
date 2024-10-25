@@ -20,9 +20,9 @@ public class Verification {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String designation;
-    private String SignatureURL;
+    private String submittedBy;
+    private String reviewedBy;
+    private String investigatedBy;
+    // TODO-> one more for QC SWD
 
-    @ManyToOne
-    private Application application;
 }
