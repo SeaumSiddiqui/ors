@@ -13,6 +13,5 @@ import lombok.Data;
 public class AuthResponseDTO {
     private String accessToken;
     private String refreshToken;
-    private String email;
     private Role role;
 }

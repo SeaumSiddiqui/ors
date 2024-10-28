@@ -74,7 +74,7 @@ public class JwtUtil {
     public boolean isRefreshTokenValid(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
         boolean isTokenValid = tokenRepository
-                .findByRefreshToken(token).map(t-> !t.isLoggedOut()).orElse(false);
+                .findByRefreshToken(token).map(t-> !t.isTokenRevoked()).orElse(false);
         return (username.equals(userDetails.getUsername()) && isTokenNonExpired(token) && isTokenValid);
     }
 
@@ -82,7 +82,7 @@ public class JwtUtil {
     public boolean isAccessTokenValid(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
         boolean isTokenValid = tokenRepository
-                .findByAccessToken(token).map(t-> !t.isLoggedOut()).orElse(false);
+                .findByAccessToken(token).map(t-> !t.isTokenRevoked()).orElse(false);
         return (username.equals(userDetails.getUsername()) && isTokenNonExpired(token) && isTokenValid);
     }
 

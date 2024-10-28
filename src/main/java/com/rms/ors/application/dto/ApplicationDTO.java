@@ -11,6 +11,7 @@ import lombok.Data;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ApplicationDTO {
+    private Long id;
     private String fullName;
     private String fathersName;
     private String mothersName;

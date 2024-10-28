@@ -1,6 +1,7 @@
 package com.rms.ors.security;
 
 import com.rms.ors.user.domain.Token;
+import com.rms.ors.user.domain.User;
 import com.rms.ors.user.repository.TokenRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -9,6 +10,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
+// TODO-> annotate with @Transactional
 @RequiredArgsConstructor
 @Component
 public class CustomLogoutHandler implements LogoutHandler {
@@ -24,12 +28,25 @@ public class CustomLogoutHandler implements LogoutHandler {
         }
 
         jwtToken = authHeader.substring(7);
-        Token storedToken = tokenRepository.findByAccessToken(jwtToken).orElse(null);
+        tokenRepository.findByAccessToken(jwtToken).ifPresent(
+                storedToken -> revokeAllTokenByUser(storedToken.getUser())
+        );
+    }
 
-        if (storedToken != null) {
-            storedToken.setLoggedOut(true);
-            tokenRepository.save(storedToken);
+
+    private void revokeAllTokenByUser(User user) {
+        List<Token> tokensByUser = tokenRepository.findAllTokenByUserId(user.getId());
+
+        if(tokensByUser.isEmpty()) {
+            return;
         }
+        // Revoke access tokens only
+        tokensByUser.stream()
+                .filter(t-> !t.isTokenRevoked())
+                .forEach(t-> t.setTokenRevoked(true));
+
+        tokenRepository.saveAll(tokensByUser);
+        tokenRepository.deleteAll(tokensByUser);
     }
 
 }

@@ -1,5 +1,6 @@
 package com.rms.ors.user.service;
 
+import com.rms.ors.exception.UserAlreadyExistsException;
 import com.rms.ors.user.domain.User;
 import com.rms.ors.exception.UserNotFoundException;
 import com.rms.ors.user.repository.UserRepository;
@@ -39,17 +40,15 @@ public class UserManagementService {
         }));
     }
 
-    /**
-    public User findUserByEmail(String username) {
-        return userRepository.findByEmail(username)
-                .orElseThrow(()-> {
-                    log.info("User {} not found", username);
-                    return new UserNotFoundException("User <%s> not found".formatted(username));
-                });
-    } **/
-
 
     public UserDTO updateUser(Long userId, User updatedUser) {
+        userRepository.findByEmail(updatedUser.getEmail()).ifPresent(existingUser-> {
+            if (!existingUser.getId().equals(userId)) {
+                log.warn("Email {} is already in use by the use with Id {}", updatedUser.getEmail(), existingUser.getId());
+                throw new UserAlreadyExistsException("Email <%s> is already in use".formatted(updatedUser.getEmail()));
+            }
+        });
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> {
                     log.warn("User with Id {} not found for update", userId);
@@ -75,7 +74,6 @@ public class UserManagementService {
     }
 
 
-
     public void deleteUser(Long userId) {
         try {
             userRepository.deleteById(userId);
@@ -88,7 +86,6 @@ public class UserManagementService {
 
 
     public UserDTO getMyInfo(String username) {
-
         return mapUserToDTO(userRepository.findByEmail(username)
                 .orElseThrow(()-> {
                     log.warn("User {} not found", username);
@@ -99,6 +96,7 @@ public class UserManagementService {
 
     private UserDTO mapUserToDTO(User user) {
         return UserDTO.builder()
+                .id(user.getId())
                 .email(user.getEmail())
                 .phoneNumber(user.getPhoneNumber())
                 .name(user.getName())

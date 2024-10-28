@@ -17,7 +17,7 @@ public class Token {
     private Long id;
     private String accessToken;
     private String refreshToken;
-    private boolean loggedOut;
+    private boolean tokenRevoked;
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;

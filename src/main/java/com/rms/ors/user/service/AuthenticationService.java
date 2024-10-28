@@ -1,5 +1,6 @@
 package com.rms.ors.user.service;
 
+import com.rms.ors.exception.UserAlreadyExistsException;
 import com.rms.ors.user.domain.Token;
 import com.rms.ors.user.domain.User;
 import com.rms.ors.user.dto.LoginReqDTO;
@@ -24,8 +25,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @RequiredArgsConstructor
 @Service
 public class AuthenticationService {
@@ -38,6 +37,9 @@ public class AuthenticationService {
 
     public AuthResponseDTO register(RegReqDTO reg) {
         try {
+            if (userAlreadyExist(reg.getEmail())){
+                throw new UserAlreadyExistsException("User: <%s> already exists".formatted(reg.getEmail()));
+            }
             User newUser = User.builder()
                     .email(reg.getEmail())
                     .phoneNumber(reg.getPhoneNumber())
@@ -59,15 +61,12 @@ public class AuthenticationService {
 
     public AuthResponseDTO login(LoginReqDTO req) {
         try {
-            authenticationManager.authenticate
-                    (new UsernamePasswordAuthenticationToken(req.getEmail(), req.getPassword()));
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(req.getEmail(), req.getPassword()));
 
             var user = userRepository.findByEmail(req.getEmail())
                     .orElseThrow(()-> new UsernameNotFoundException("User not found"));
 
             log.info("User {} logged successfully", user.getEmail());
-            // revoke old tokens
-            revokeAllTokenByUser(user);
             return mapUserToDTO(user);
 
         } catch (AuthenticationException ex) {
@@ -88,58 +87,55 @@ public class AuthenticationService {
             log.warn("Invalid refresh token!");
             throw new InvalidRefreshTokenException("Invalid refresh token");
         }
-
         String refToken = authHeader.substring(7);
         // extract the username form token
         String userEmail = jwtUtil.extractUsername(refToken);
         // find user by username
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(()-> new UserNotFoundException("User not found"));
-        // check if token is valid
+
+        // check if refresh token is valid
         if (!jwtUtil.isRefreshTokenValid(refToken, user)) {
             log.warn("Invalid refresh token!");
             throw new InvalidRefreshTokenException("Invalid refresh token");
         }
-        // revoke old tokens
-        revokeAllTokenByUser(user);
-        return mapUserToDTO(user);
-    }
-
-    
-    private AuthResponseDTO mapUserToDTO(User user) {
         String accessToken = jwtUtil.generateToken(user);
-        String refreshToken = jwtUtil.generateRefreshToken(user);
-        // save new token before return responseDTO
-        saveUserToken(accessToken, refreshToken, user);
+        saveUserToken(user, accessToken, refToken);
 
         return AuthResponseDTO.builder()
                 .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .email(user.getEmail())
+                .refreshToken(refToken)
                 .role(user.getRole())
                 .build();
     }
 
-    private void saveUserToken(String accessToken, String refreshToken, User user) {
+
+    private boolean userAlreadyExist(String email) {
+        return userRepository.findByEmail(email).isPresent();
+    }
+
+
+    private AuthResponseDTO mapUserToDTO(User user) {
+        String accessToken = jwtUtil.generateToken(user);
+        String refreshToken = jwtUtil.generateRefreshToken(user);
+        // save new token before return
+        saveUserToken(user, accessToken, refreshToken);
+
+        return AuthResponseDTO.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .role(user.getRole())
+                .build();
+    }
+
+    private void saveUserToken(User user, String accessToken, String refreshToken) {
         Token token = Token.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
-                .loggedOut(false)
+                .tokenRevoked(false)
                 .user(user)
                 .build();
         tokenRepository.save(token);
-    }
-
-    private void revokeAllTokenByUser(User user) {
-        List<Token> tokensByUser = tokenRepository.findAllTokenById(user.getId());
-
-        if(tokensByUser.isEmpty()) {
-            return;
-        }
-        tokensByUser.forEach(t-> t.setLoggedOut(true));
-        // clean DB by deleting all expired token
-        // TODO -> also delete token on logout
-        tokenRepository.deleteAll(tokensByUser);
     }
 
 }

@@ -37,7 +37,7 @@ public class ApplicationService {
                                                    String fullName, String fathersName, String applicationStatus,
                                                    String sortField, String sortDirection, int page, int size) {
 
-        // Validate user role, USER can only see applications submitted by themselves
+        // validate user role, USER can only see applications submitted by themselves
         if (!isAdminOrManagement(currentUser)) createdBy = currentUser.getId();
 
         Specification<Application> specification = ApplicationSpecification.buildSearchSpecification
@@ -276,6 +276,7 @@ public class ApplicationService {
 
     private ApplicationDTO mapApplicationToDTO(Application application) {
         return ApplicationDTO.builder()
+                .id(application.getId())
                 .fullName(application.getPrimaryInformation().getFullName())
                 .fathersName(application.getPrimaryInformation().getFathersName())
                 .mothersName(application.getPrimaryInformation().getMothersName())
