@@ -110,7 +110,7 @@ public class UserManagementService {
 
     // Method for dashboard service
     public Long getUserIdByName(String name) {
-        return Optional.ofNullable(userRepository.findFirstByNameIgnoreCase(name))
+        return Optional.ofNullable(userRepository.findFirstIdByNameIgnoreCase(name))
                 .orElseThrow(()-> new UserNotFoundException("User with Id <%s> not found for deletion".formatted(name)));
     }
 
