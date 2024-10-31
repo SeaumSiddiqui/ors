@@ -14,6 +14,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Slf4j
 @RequiredArgsConstructor
 @Service
@@ -104,6 +106,12 @@ public class UserManagementService {
                 .gender(user.getGender())
                 .role(user.getRole())
                 .build();
+    }
+
+    // Method for dashboard service
+    public Long getUserIdByName(String name) {
+        return Optional.ofNullable(userRepository.findFirstByNameIgnoreCase(name))
+                .orElseThrow(()-> new UserNotFoundException("User with Id <%s> not found for deletion".formatted(name)));
     }
 
 }

@@ -26,23 +26,9 @@ public class DashboardController {
     }
 
 
-    @GetMapping("/reference/{userId}")
-    public ResponseEntity<Map<Status, Integer>> getUserStats(@PathVariable Long userId) {
-        return ResponseEntity.ok(dashboardService.getUserSpecificStats(userId));
+    @GetMapping("/reference")
+    public ResponseEntity<Map<Status, Integer>> getUserStats(@RequestParam String name) {
+        return ResponseEntity.ok(dashboardService.getUserSpecificStats(name));
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 }

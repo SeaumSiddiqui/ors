@@ -2,6 +2,7 @@ package com.rms.ors.application.service;
 
 import com.rms.ors.application.repository.ApplicationRepository;
 import com.rms.ors.shared.Status;
+import com.rms.ors.user.service.UserManagementService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +14,7 @@ import java.util.Map;
 @Service
 public class DashboardService {
     private final ApplicationRepository applicationRepository;
+    private final UserManagementService userManagementService;
 
     public Map<Status, Integer> getTodayStats() {
         LocalDateTime today = LocalDateTime.now().toLocalDate().atStartOfDay();
@@ -35,7 +37,8 @@ public class DashboardService {
         return stats;
     }
 
-    public  Map<Status, Integer> getUserSpecificStats(Long userId) {
+    public  Map<Status, Integer> getUserSpecificStats(String name) {
+        Long userId = userManagementService.getUserIdByName(name);
         Map<Status, Integer> stats = new HashMap<>();
 
         for (Status status: Status.values()) {
